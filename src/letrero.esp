@@ -1,0 +1,26 @@
+// Configuración inicial
+variable ENTERO pos_x = 32;
+variable ENTERO tecla = 0;
+variable BOOLEANO corriendo = 1;
+
+// Bucle principal del juego (Opción C requiere control manual)
+Mientras (corriendo) {
+    
+    // 1. Leer entrada del teclado (KEY k dest) [cite: 26]
+    leer_tecla(tecla);
+
+    // 2. Control Manual [cite: 45]
+    // Si tecla izquierda (ej. código 1)
+    Si (tecla == 1) {
+        pos_x = pos_x + 1; // Mover derecha
+    }
+    
+    // Si tecla derecha (ej. código 2)
+    Si (tecla == 2) {
+        pos_x = pos_x + -1; // Mover izquierda (sumar negativo si no tienes resta aun)
+    }
+
+    // 3. Dibujar en matriz 64x64 [cite: 32]
+    // Aquí dibujarías tu letrero basado en pos_x
+    pintar_pixel(pos_x); 
+}
