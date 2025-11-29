@@ -1,0 +1,4 @@
+// Prueba simple para verificar sintaxis básica
+
+variable ENTERO a = 10;
+variable ENTERO b = 20;
