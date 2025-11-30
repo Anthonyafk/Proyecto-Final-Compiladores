@@ -1,4 +1,88 @@
 // Prueba simple para verificar sintaxis básica
 
-variable ENTERO a = 10;
-variable ENTERO b = 20;
+// variable ENTERO a = 10;
+// variable ENTERO b = 20;
+
+// ============================================================================
+// PRUEBA DE SISTEMA DE FUNCIONES FIS-25
+// ============================================================================
+
+// ----------------------------------------------------------------------------
+// Función simple sin parámetros
+// ----------------------------------------------------------------------------
+funcion NULO saludar() {
+    imprimir("Hola desde funcion!");
+}
+
+// ----------------------------------------------------------------------------
+// Función con un parámetro
+// ----------------------------------------------------------------------------
+funcion NULO imprimir_numero(ENTERO n) {
+    imprimir(n);
+}
+
+// ----------------------------------------------------------------------------
+// Función con dos parámetros
+// ----------------------------------------------------------------------------
+funcion ENTERO sumar(ENTERO a, ENTERO b) {
+    variable ENTERO resultado = a + b;
+    retornar resultado;
+}
+
+// ----------------------------------------------------------------------------
+// Función con tres parámetros (para PIXEL)
+// ----------------------------------------------------------------------------
+funcion NULO dibujar_punto(ENTERO x, ENTERO y, ENTERO color) {
+    pintar_pixel(x, y, color);
+}
+
+// ----------------------------------------------------------------------------
+// Función más compleja con lógica
+// ----------------------------------------------------------------------------
+funcion ENTERO maximo(ENTERO a, ENTERO b) {
+    Si (a > b) {
+        retornar a;
+    } SiNo {
+        retornar b;
+    }
+}
+
+// ----------------------------------------------------------------------------
+// Función con bucle
+// ----------------------------------------------------------------------------
+funcion NULO contar_hasta(ENTERO limite) {
+    variable ENTERO i = 0;
+    Mientras (i < limite) {
+        imprimir(i);
+        i = i + 1;
+    }
+}
+
+// ----------------------------------------------------------------------------
+// PROGRAMA PRINCIPAL
+// ----------------------------------------------------------------------------
+
+imprimir("=== PRUEBA DE FUNCIONES ===");
+
+// Prueba 1: Función sin parámetros
+saludar();
+
+// Prueba 2: Función con un parámetro
+imprimir_numero(42);
+
+// Prueba 3: Función con retorno
+variable ENTERO suma = sumar(10, 20);
+imprimir("Suma:");
+imprimir(suma);
+
+// Prueba 4: Función con tres parámetros
+dibujar_punto(32, 32, 1);
+
+// Prueba 5: Función con condicional
+variable ENTERO max = maximo(15, 25);
+imprimir("Maximo:");
+imprimir(max);
+
+// Prueba 6: Función con bucle
+imprimir("Contando:");
+contar_hasta(5);

@@ -74,10 +74,53 @@ char* generar_expresion(Nodo* n) {
             
         case NODO_LOGICO:
             // Implementación simplificada para Y / O
-            t1 = generar_expresion(n->izq);
-            t2 = generar_expresion(n->der); // Puede ser NULL si es un NOT
+            //t1 = generar_expresion(n->izq);
+            //t2 = generar_expresion(n->der); // Puede ser NULL si es un NOT
             // Aquí iría la lógica específica, retornamos t1 por simplicidad en debug
-            return t1; 
+            //return t1;
+            if (strcmp(n->operador, "No") == 0) {
+                t1 = generar_expresion(n->izq);
+                printf("EQ %s 0 %s\n", t1, t);
+            } else {
+                t1 = generar_expresion(n->izq);
+                t2 = generar_expresion(n->der);
+                if (strcmp(n->operador, "Y") == 0) {
+                    char* temp_mul = nuevo_temp();
+                    printf("MUL %s %s %s\n", t1, t2, temp_mul);
+                    printf("NEQ %s 0 %s\n", temp_mul, t);
+                } else if (strcmp(n->operador, "O") == 0) {
+                    char* temp_add = nuevo_temp();
+                    printf("ADD %s %s %s\n", t1, t2, temp_add);
+                    printf("NEQ %s 0 %s\n", temp_add, t);
+                }
+            }
+            return t;
+        case NODO_LLAMADA_FUNC:
+            // Según FIS-25: Apilar argumentos con PARAM antes de GOSUB
+            Nodo* arg = n->argumentos;
+            int num_args = 0;
+
+            // Contar argumentos primero
+            Nodo* temp_arg = arg;
+            while (temp_arg) {
+                num_args++;
+                temp_arg = temp_arg->siguiente;
+            }
+
+            // Apilar argumentos en orden
+            arg = n->argumentos;
+            while (arg) {
+                char* temp_arg_val = generar_expresion(arg);
+                printf("PARAM %s\n", temp_arg_val);
+                arg = arg->siguiente;
+            }
+
+            // Llamar a la subrutina
+            printf("GOSUB %s\n", n->nombre);
+
+            // El valor de retorno (si hay) queda implícito
+            // Por simplicidad, asumimos que se puede usar un temporal
+            return t;
 
         default:
             return t;
@@ -187,7 +230,27 @@ void generar_codigo(Nodo* n) {
         // 5. Casos que no generan código por sí mismos (son parte de otros)
         case NODO_FUNCION: 
             // Si tuvieras funciones reales, aquí generarías LABEL func_name
+            //generar_bloque(n->cuerpo);
+            //break;
+            // Generar etiqueta para la función
+            printf("\n// Función: %s\n", n->nombre);
+            printf("LABEL %s\n", n->nombre);
+
+            // Recuperar parámetros con PARAM_GET
+            Nodo* param = n->parametros;
+            int param_idx = 0;
+            while (param) {
+                printf("VAR %s\n", param->nombre);
+                printf("PARAM_GET %d %s\n", param_idx, param->nombre);
+                param_idx++;
+                param = param->siguiente;
+            }
+
+            // Generar cuerpo de la función
             generar_bloque(n->cuerpo);
+
+            // Si no hay RETURN explícito, agregarlo
+            printf("RETURN\n\n");
             break;
             
         case NODO_LLAMADA_FUNC:
