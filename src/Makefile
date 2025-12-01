@@ -5,7 +5,7 @@ LEX = flex
 YACC = bison
 
 EXEC = compilador
-SRC = test_simple.esp
+SRC = reloj.esp
 OUT = salida.txt
 
 GEN_SRC = parser.tab.c parser.tab.h lex.yy.c
