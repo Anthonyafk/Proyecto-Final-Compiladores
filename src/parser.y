@@ -132,6 +132,28 @@ instruccion:
     | RETORNAR PYC {
         $$ = crear_nodo_return(NULL);
     }
+
+    | PARA PAR_IZQ instruccion expresion PYC ID ASIGNAR expresion PAR_DER bloque {
+        $$ = $3; 
+        Nodo* mientras = crear_nodo(NODO_MIENTRAS);
+        mientras->condicion = $4; // Condición del medio
+
+        Nodo* incremento = crear_nodo(NODO_ASIGNACION);
+        incremento->nombre = $6; // ID del incremento
+        incremento->izq = $8;    // Expresión del incremento
+        
+        if ($10) {
+            mientras->der = $10; // Cuerpo del usuario
+            Nodo* t = $10;
+            while (t->siguiente) t = t->siguiente; // Ir al final de la lista del cuerpo
+            t->siguiente = incremento;
+        } else {
+            mientras->der = incremento;
+        }
+        Nodo* t = $3;
+        while (t->siguiente) t = t->siguiente;
+        t->siguiente = mientras;
+    }
     ;
 
 declaracion_func:
