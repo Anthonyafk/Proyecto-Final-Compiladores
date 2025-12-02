@@ -3,7 +3,6 @@
 #include <string.h>
 #include <stdlib.h>
 
-/* Si no tienes strdup en tu sistema (Windows/MinGW a veces falla), usa esto */
 char* mi_strdup(const char* s) {
     if (!s) return NULL;
     char* nuevo = (char*)malloc(strlen(s) + 1);
@@ -12,7 +11,6 @@ char* mi_strdup(const char* s) {
 }
 %}
 
-/* --- SOLUCIÓN AL ERROR DE LINKEO --- */
 %option noyywrap
 
 %%

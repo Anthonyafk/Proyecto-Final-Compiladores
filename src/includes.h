@@ -1,7 +1,7 @@
 #ifndef INCLUDES_H
 #define INCLUDES_H
 
-// Definir _GNU_SOURCE para habilitar strdup
+// Definimos _GNU_SOURCE para habilitar strdup
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif

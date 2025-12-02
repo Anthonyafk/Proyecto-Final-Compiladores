@@ -1,14 +1,10 @@
-// ==========================================
-// PROYECTO: RELOJ FINAL (CUMPLE ESPECIFICACIONES)
-// ==========================================
+//  RELOJ ANALÓGICO
 
-// 1. ESTADO INICIAL
+// Estado inicial del reloj
 variable ENTERO horas = 0;
 variable ENTERO minutos = 0;
 
-// --- CONFIGURACIÓN INICIAL (STDIN) ---
-// Cumpliendo con el requisito: "Se debe poder ajustar la hora inicial mediante entrada estándar"
-imprimir("--- CONFIGURACION INICIAL ---");
+imprimir(">>> Configuración Inicial <<<");
 
 imprimir("Ingrese Hora (1-12):");
 horas = entrada();
@@ -43,17 +39,16 @@ imprimir("-> Tecla 1: Hora | Tecla 2: Minuto");
 // Bucle Principal
 Mientras (1) {
 
-// --- A. LECTURA DE TECLAS ---
+// Lectura de las reglas
 leer_tecla(1, key_1); // Horas
 leer_tecla(2, key_2); // Minutos
 
-// Control Horas (Avanza 1 hora)
+// Control de las horas
 Si (key_1 == 1) {
     Si (lock_hor == 0) {
         horas = horas + 1;
         Si (horas > 12) { horas = 1; }
         
-        // FEEDBACK INMEDIATO (Para sentirlo en tiempo real)
         imprimir(">> Hora:"); 
         imprimir(horas);
         
@@ -63,13 +58,12 @@ Si (key_1 == 1) {
 }
 Si (key_1 == 0) { lock_hor = 0; }
 
-// Control Minutos (Avanza 5 minutos)
+// Control de los minutos
 Si (key_2 == 1) {
     Si (lock_min == 0) {
         minutos = minutos + 5; 
         Si (minutos >= 60) { minutos = 0; }
         
-        // FEEDBACK INMEDIATO
         imprimir(">> Minuto:");
         imprimir(minutos);
         
@@ -80,10 +74,10 @@ Si (key_2 == 1) {
 Si (key_2 == 0) { lock_min = 0; }
 
 
-// --- B. RENDERIZADO ---
+// Renderizado
 Si (update == 1) {
     
-    // 1. BORRAR PANTALLA
+    // Borrar pantalla
     variable ENTERO by = 0;
     Mientras (by < 64) {
         variable ENTERO bx = 0;
@@ -94,7 +88,7 @@ Si (update == 1) {
         by = by + 1;
     }
 
-    // 2. DIBUJAR MARCO
+    // Dibujamos marco
     variable ENTERO border = 2;
     Mientras (border < 62) {
         pintar_pixel(border, 2, 1);
@@ -104,7 +98,7 @@ Si (update == 1) {
         border = border + 1;
     }
     
-    // 2.5 DIBUJAR MARCAS (VISUAL)
+    // Dibujamos marcas
     pintar_pixel(32, 4, 1);  // 12
     pintar_pixel(32, 60, 1); // 6
     pintar_pixel(60, 32, 1); // 3
@@ -120,11 +114,9 @@ Si (update == 1) {
     pintar_pixel(18, 8, 1);  // 11
     pintar_pixel(32, 32, 1); // Centro
 
-    // ===================================
-    // 3. CALCULO COORDENADAS
-    // ===================================
-    
-    // --- HORAS (Radio 12) ---
+    // Calculo de las coordenadas
+
+    // Horas
     variable ENTERO hx = 32; 
     variable ENTERO hy = 32;
     
@@ -141,7 +133,7 @@ Si (update == 1) {
     Si (horas == 10) { hx = 22; hy = 26; }
     Si (horas == 11) { hx = 26; hy = 22; } 
 
-    // --- MINUTOS (Radio 20) ---
+    // Minutos
     variable ENTERO mx = 32; 
     variable ENTERO my = 32;
     variable ENTERO midx = minutos / 5;
@@ -160,11 +152,9 @@ Si (update == 1) {
     Si (midx == 11){ mx = 22; my = 15; }
     Si (midx == 12){ mx = 32; my = 12; }
 
-    // ===================================
-    // 4. TRAZADO DE LÍNEAS
-    // ===================================
+    // Trazado de líneas
     
-    // --- DIBUJAR MANECILLA HORAS ---
+    // Dibujamos manecilla de horas
     variable ENTERO x0 = 32; variable ENTERO y0 = 32;
     variable ENTERO x1 = hx; variable ENTERO y1 = hy;
     
@@ -189,7 +179,7 @@ Si (update == 1) {
         Si (e2 < dx) { err = err + dx; y0 = y0 + sy; }
     }
 
-    // --- DIBUJAR MANECILLA MINUTOS ---
+    // Dibujamos manecilla de minutos
     x0 = 32; y0 = 32;
     x1 = mx; y1 = my;
     
@@ -219,6 +209,5 @@ Si (update == 1) {
 // Retardo mínimo para fluidez
 variable ENTERO i = 0;
 Mientras (i < 50) { i = i + 1; }
-
 
 }

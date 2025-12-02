@@ -1,4 +1,4 @@
-# --- Variables de Configuración ---
+# Variables
 CC = gcc
 CFLAGS = -Wall -g -Wno-implicit-function-declaration -Wno-unused-function -D_GNU_SOURCE 
 LEX = flex
@@ -11,7 +11,7 @@ OUT = salida.txt
 GEN_SRC = parser.tab.c parser.tab.h lex.yy.c
 OBJS = main.o ast.o codegen.o parser.tab.o lex.yy.o
 
-# REGLA 
+# Regla que hace todo
 all:
 	@echo " "
 	@echo "-> Borrando archivos anteriores"
@@ -43,7 +43,6 @@ all:
 	@echo " "
 	@echo "Carpeta limpia y resultado guardado en: $(OUT)"
 
-# --- Utilidades ---
 # Borra TODO, incluyendo el txt generado
 clean:
 	@rm -f $(GEN_SRC) $(OBJS) $(EXEC) $(EXEC).exe $(OUT)

@@ -3,15 +3,13 @@
 #include <stdlib.h>
 #include "ast.h"
 
-// --- VARIABLES GLOBALES ---
+// Variables globales
 int label_count = 0;
 int temp_count = 0;
 
-// --- PROTOTIPOS (Esto soluciona el error de conflicting types) ---
 void generar_codigo(Nodo* n);
 char* generar_expresion(Nodo* n);
 
-// --- FUNCIONES AUXILIARES ---
 char* safe_strdup(const char* s) {
     if (!s) return NULL;
     char* copy = (char*)malloc(strlen(s) + 1);
@@ -29,7 +27,7 @@ int nueva_etiqueta() {
     return label_count++; 
 }
 
-// --- GENERACIÓN DE EXPRESIONES (Retorna T0, T1...) ---
+// Generación de las expresiones
 char* generar_expresion(Nodo* n) {
     if (!n) return NULL;
     char* t = nuevo_temp();
@@ -73,11 +71,6 @@ char* generar_expresion(Nodo* n) {
             return t;
             
         case NODO_LOGICO:
-            // Implementación simplificada para Y / O
-            //t1 = generar_expresion(n->izq);
-            //t2 = generar_expresion(n->der); // Puede ser NULL si es un NOT
-            // Aquí iría la lógica específica, retornamos t1 por simplicidad en debug
-            //return t1;
             if (strcmp(n->operador, "No") == 0) {
                 t1 = generar_expresion(n->izq);
                 printf("EQ %s 0 %s\n", t1, t);
@@ -96,17 +89,15 @@ char* generar_expresion(Nodo* n) {
             }
             return t;
         case NODO_LLAMADA_FUNC:
-            // Según FIS-25: Apilar argumentos con PARAM antes de GOSUB
+            // Apilar argumentos con PARAM antes de GOSUB
             Nodo* arg = n->argumentos;
             int num_args = 0;
-
             // Contar argumentos primero
             Nodo* temp_arg = arg;
             while (temp_arg) {
                 num_args++;
                 temp_arg = temp_arg->siguiente;
             }
-
             // Apilar argumentos en orden
             arg = n->argumentos;
             while (arg) {
@@ -114,20 +105,15 @@ char* generar_expresion(Nodo* n) {
                 printf("PARAM %s\n", temp_arg_val);
                 arg = arg->siguiente;
             }
-
             // Llamar a la subrutina
             printf("GOSUB %s\n", n->nombre);
-
-            // El valor de retorno (si hay) queda implícito
-            // Por simplicidad, asumimos que se puede usar un temporal
             return t;
-
         default:
             return t;
     }
 }
 
-// --- HELPER: Recorrer lista de instrucciones ---
+// Recorre lista de instrucciones
 void generar_bloque(Nodo* n) {
     Nodo* actual = n;
     while (actual) {
@@ -136,22 +122,21 @@ void generar_bloque(Nodo* n) {
     }
 }
 
-// --- GENERACIÓN DE INSTRUCCIONES ---
+// Generación de instrucciones
 void generar_codigo(Nodo* n) {
     if (!n) return;
 
     switch (n->tipo) {
-        // 1. Estructura del programa
+        // Estructura del programa
         case NODO_PROGRAMA:
-            // Corregido: Ya no usamos 'raiz', usamos 'n->siguiente' que viene del parser
             generar_bloque(n->siguiente); 
             break;
 
         case NODO_BLOQUE:
-            generar_bloque(n); // Recorrer el bloque interno
+            generar_bloque(n); // Recorremos el bloque interno
             break;
 
-        // 2. Variables y Asignaciones
+        // Variables y Asignaciones
         case NODO_VAR_DECL:
             printf("VAR %s\n", n->nombre);
             if (n->izq) {
@@ -166,7 +151,7 @@ void generar_codigo(Nodo* n) {
             break;
         }
 
-        // 3. Control de Flujo
+        // Control de flujo
         case NODO_MIENTRAS: {
             int L1 = nueva_etiqueta();
             int L2 = nueva_etiqueta();
@@ -198,7 +183,7 @@ void generar_codigo(Nodo* n) {
             break;
         }
 
-        // 4. Funciones Nativas
+        // Funciones nativas
         case NODO_IMPRIMIR: {
              char* t = generar_expresion(n->izq);
              printf("PRINT %s\n", t);
@@ -227,16 +212,12 @@ void generar_codigo(Nodo* n) {
             printf("RETURN\n");
             break;
 
-        // 5. Casos que no generan código por sí mismos (son parte de otros)
+        // Casos que no generan código por sí mismos
         case NODO_FUNCION: 
-            // Si tuvieras funciones reales, aquí generarías LABEL func_name
-            //generar_bloque(n->cuerpo);
-            //break;
-            // Generar etiqueta para la función
             printf("\n// Función: %s\n", n->nombre);
             printf("LABEL %s\n", n->nombre);
 
-            // Recuperar parámetros con PARAM_GET
+            // Recuperamos parámetros
             Nodo* param = n->parametros;
             int param_idx = 0;
             while (param) {
@@ -246,18 +227,17 @@ void generar_codigo(Nodo* n) {
                 param = param->siguiente;
             }
 
-            // Generar cuerpo de la función
+            // Generamos cuerpo de la función
             generar_bloque(n->cuerpo);
 
-            // Si no hay RETURN explícito, agregarlo
+            // Si no hay return explícito, lo agregamos
             printf("RETURN\n\n");
             break;
             
         case NODO_LLAMADA_FUNC:
             generar_expresion(n);
             break;
-
-        // Silenciar warnings para nodos que son expresiones, no instrucciones
+            
         default:
             break; 
     }

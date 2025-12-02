@@ -26,7 +26,7 @@ Nodo* crear_nodo_return(Nodo* expr) {
     struct Nodo* nodo;
 }
 
-/* --- TOKENS (Sincronizados con lexer.l) --- */
+/* Tokens */
 %token <sval> ID LIT_STRING
 %token <ival> NUM_INT VERDADERO FALSO
 %token <fval> NUM_FLOAT
@@ -41,11 +41,11 @@ Nodo* crear_nodo_return(Nodo* expr) {
 %token PAR_IZQ PAR_DER LLAVE_IZQ LLAVE_DER CORCHETE_IZQ CORCHETE_DER
 %token PYC COMA Y O NO
 
-/* --- NO-TERMINALES --- */
+/* No terminales */
 %type <nodo> programa lista_instr instruccion expresion bloque factor 
 %type <nodo> lista_args declaracion_func args_func arg_func
 
-/* --- PRECEDENCIA (De menor a mayor) --- */
+/* Precedencia (de menor a mayor) */
 %left O
 %left Y
 %left IGUAL_QUE DIFERENTE MENOR_QUE MAYOR_QUE MENOR_IGUAL MAYOR_IGUAL
@@ -194,7 +194,7 @@ bloque:
     | LLAVE_IZQ LLAVE_DER { $$ = NULL; }
     ;
 
-/* --- EXPRESIONES --- */
+/* Expresiones */
 expresion:
     factor
     | expresion MAS expresion { $$ = crear_nodo(NODO_BINARIO); $$->operador = strdup("+"); $$->izq = $1; $$->der = $3; }

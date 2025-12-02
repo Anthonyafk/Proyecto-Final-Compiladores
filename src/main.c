@@ -17,13 +17,13 @@ int main(int argc, char** argv) {
         }
     }
     
-    // Parsear el programa
+    // Parseamos el programa
     if (yyparse() != 0) {
         fprintf(stderr, "Error de análisis sintáctico\n");
         return 1;
     }
     
-    // Generar código intermedio (Directo al grano, sin comentarios extra)
+    // Generamos código intermedio
     if (raiz) {
         generar_codigo_programa(raiz);
     }

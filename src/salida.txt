@@ -4,7 +4,7 @@ ASSIGN T0 horas
 VAR minutos
 ASSIGN 0 T1
 ASSIGN T1 minutos
-ASSIGN "--- CONFIGURACION INICIAL ---" T2
+ASSIGN ">>> Configuración Inicial <<<" T2
 PRINT T2
 ASSIGN "Ingrese Hora (1-12):" T3
 PRINT T3
