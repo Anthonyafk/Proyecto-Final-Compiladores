@@ -3,4 +3,4 @@ Ponte en la carpeta src, ejecuta `make` y se genera el código intermedio del ar
 
 # En el simulador
 
-Para mover las manecillas se usan las flechas de abajo y de izquierda. Si gustan cambiarlo también, adelante
+Al principio, se te solicita la hora inicial. Para mover las manecillas del reloj, se usan las flechas de abajo y de izquierda.
