@@ -1,23 +1,23 @@
 # Compilador de Lenguaje en Español para FIS-25
 
-## 📋 Descripción
+## Descripción
 
-Compilador completo de un lenguaje de programación basado en el Español que genera código intermedio optimizado para la **Máquina Virtual FIS-25**. Incluye análisis léxico (Flex), sintáctico (Bison) y generación de código intermedio.
+Compilador completo de un lenguaje de programación basado en el Español que genera código intermedio optimizado para el **Simluador FIS-25**. Incluye análisis léxico (Flex), sintáctico (Bison) y generación de código intermedio.
 
-### 👥 Equipo
+### Equipo
 
 - Joshua Juárez Cruz
 - Antonio Castillo Hernández
 - Jesús Elías Vázquez Reyes
 
-## 🚀 Inicio Rápido
+## Inicio Rápido
 
 ```bash
 cd src
 make
 ```
 
-Genera código intermedio en `salida.txt` a partir de `reloj.esp`.
+Se genera el código intermedio en `salida.txt` a partir de `reloj.esp`.
 
 ### Ejecutar en FIS-25
 
@@ -26,26 +26,19 @@ Genera código intermedio en `salida.txt` a partir de `reloj.esp`.
 3. Configurar hora y minutos
 4. Controlar con Tecla 1 (horas-Flecha izquierda) y Tecla 2 (minutos-Flecha hacia abajo)
 
-## 🎯 Proyecto: Reloj Analógico Interactivo
+## Proyecto: Reloj Analógico Interactivo
 
 Reloj analógico de 12 horas en pantalla 64x64 con control manual mediante teclado.
 
 ### Características
 
-✅ **Pantalla 64x64**: Reloj con marcas horarias y manecillas  
-✅ **Control interactivo**: Ajuste manual con teclas 1 y 2  
-✅ **Algoritmo Bresenham**: Trazado eficiente de líneas  
-✅ **Entrada validada**: Límites automáticos (horas 1-12, minutos 0-59)  
-✅ **Código optimizado**: Generación eficiente de código intermedio
+- **Pantalla 64x64**: Reloj con marcas horarias y manecillas  
+- **Control interactivo**: Ajuste manual con teclas 1 y 2  
+- **Algoritmo Bresenham**: Trazado eficiente de líneas  
+- **Entrada validada**: Límites automáticos (horas 1-12, minutos 0-59)  
+- **Código optimizado**: Generación eficiente de código intermedio
 
-## 🛠️ Tecnologías
-
-- **C** - Implementación del compilador
-- **Flex** - Análisis léxico
-- **Bison** - Análisis sintáctico
-- **FIS-25 VM** - Máquina virtual (64x64 píxeles)
-
-## 📁 Estructura
+## Estructura
 
 ```
 src/
@@ -58,13 +51,6 @@ src/
 └── salida.txt        # Código intermedio
 ```
 
-## 🔧 Compilación
-
-```bash
-make                # Compila y genera código
-make clean          # Limpia archivos generados
-```
-
 Proceso:
 1. Flex genera lexer
 2. Bison genera parser
@@ -72,7 +58,7 @@ Proceso:
 4. Ejecuta sobre `reloj.esp`
 5. Genera `salida.txt`
 
-## 📝 Sintaxis
+## Ejemplo de sintaxis de nuestro lenguaje
 
 ```javascript
 // Variables
@@ -103,7 +89,7 @@ leer_tecla(numero, variable);
 imprimir(expresion);
 ```
 
-## 🔬 Algoritmo Bresenham
+## Algoritmo Bresenham
 
 Trazado eficiente de líneas para las manecillas:
 
