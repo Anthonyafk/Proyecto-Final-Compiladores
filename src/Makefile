@@ -9,7 +9,7 @@ SRC = reloj.esp
 OUT = salida.txt
 
 GEN_SRC = parser.tab.c parser.tab.h lex.yy.c
-OBJS = main.o ast.o codegen.o parser.tab.o lex.yy.o
+OBJS = main.o ast.o codegen.o semantics.o parser.tab.o lex.yy.o
 
 # Regla que hace todo
 all:
@@ -27,7 +27,7 @@ all:
 	
 	@echo " "
 	@echo "-> Compilando ejecutable"
-	@$(CC) $(CFLAGS) -o $(EXEC) parser.tab.c lex.yy.c ast.c codegen.c main.c
+	@$(CC) $(CFLAGS) -o $(EXEC) parser.tab.c lex.yy.c ast.c codegen.c semantics.c main.c
 	
 	@echo " "
 	@echo "Generando código intermedio en $(OUT)"
@@ -43,7 +43,7 @@ all:
 	@echo " "
 	@echo "Carpeta limpia y resultado guardado en: $(OUT)"
 
-# Borra TODO, incluyendo el txt generado
+# Borra todo, incluyendo el txt generado
 clean:
 	@rm -f $(GEN_SRC) $(OBJS) $(EXEC) $(EXEC).exe $(OUT)
 	@echo "Directorio totalmente limpio."

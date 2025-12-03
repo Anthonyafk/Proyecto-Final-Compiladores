@@ -78,13 +78,22 @@ lista_instr:
 instruccion:
     /* 1. Declaración de Variables */
     VARIABLE TIPO_INT ID ASIGNAR expresion PYC {
-        $$ = crear_nodo(NODO_VAR_DECL); $$->nombre = $3; $$->izq = $5; 
+        $$ = crear_nodo(NODO_VAR_DECL); 
+        $$->nombre = $3; 
+        $$->izq = $5; 
+        $$->tipo_dato = TIPO_DATO_INT;
     }
     | VARIABLE TIPO_BOOL ID ASIGNAR expresion PYC {
-        $$ = crear_nodo(NODO_VAR_DECL); $$->nombre = $3; $$->izq = $5; 
+        $$ = crear_nodo(NODO_VAR_DECL); 
+        $$->nombre = $3; 
+        $$->izq = $5; 
+        $$->tipo_dato = TIPO_DATO_BOOL;
     }
-    | VARIABLE TIPO_STRING ID ASIGNAR expresion PYC { /* Agregado para strings */
-        $$ = crear_nodo(NODO_VAR_DECL); $$->nombre = $3; $$->izq = $5;
+    | VARIABLE TIPO_STRING ID ASIGNAR expresion PYC { 
+        $$ = crear_nodo(NODO_VAR_DECL); 
+        $$->nombre = $3; 
+        $$->izq = $5;
+        $$->tipo_dato = TIPO_DATO_STRING;
     }
 
     /* 2. Asignación */

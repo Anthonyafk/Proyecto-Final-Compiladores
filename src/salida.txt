@@ -6,11 +6,11 @@ ASSIGN 0 T1
 ASSIGN T1 minutos
 ASSIGN ">>> Configuración Inicial <<<" T2
 PRINT T2
-ASSIGN "Ingrese Hora (1-12):" T3
+ASSIGN "Ingresa la hora (1-12):" T3
 PRINT T3
 INPUT T4
 ASSIGN T4 horas
-ASSIGN "Ingrese Minutos (0-59):" T5
+ASSIGN "Ingresa los minutos (un múltiplo de 5, entre 0 y 60):" T5
 PRINT T5
 INPUT T6
 ASSIGN T6 minutos
@@ -63,9 +63,9 @@ ASSIGN T28 key_1
 VAR key_2
 ASSIGN 0 T29
 ASSIGN T29 key_2
-ASSIGN "-> Reloj Iniciado. Control Manual Activo." T30
+ASSIGN "-> Reloj analógico iniciado" T30
 PRINT T30
-ASSIGN "-> Tecla 1: Hora | Tecla 2: Minuto" T31
+ASSIGN "-> Flecha Abajo para horas y Flecha Izquierda para minutos" T31
 PRINT T31
 LABEL L8
 ASSIGN 1 T32

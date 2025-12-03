@@ -6,10 +6,10 @@ variable ENTERO minutos = 0;
 
 imprimir(">>> Configuración Inicial <<<");
 
-imprimir("Ingrese Hora (1-12):");
+imprimir("Ingresa la hora (1-12):");
 horas = entrada();
 
-imprimir("Ingrese Minutos (0-59):");
+imprimir("Ingresa los minutos (un múltiplo de 5, entre 0 y 60):");
 minutos = entrada();
 
 // Validaciones de seguridad
@@ -33,8 +33,8 @@ variable ENTERO update = 1;
 variable ENTERO key_1 = 0; // Hora
 variable ENTERO key_2 = 0; // Minuto
 
-imprimir("-> Reloj Iniciado. Control Manual Activo.");
-imprimir("-> Tecla 1: Hora | Tecla 2: Minuto");
+imprimir("-> Reloj analógico iniciado");
+imprimir("-> Flecha Abajo para horas y Flecha Izquierda para minutos");
 
 // Bucle Principal
 Mientras (1) {
