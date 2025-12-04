@@ -134,7 +134,7 @@ instruccion:
     /* 6. Definición de Funciones */
     | declaracion_func { $$ = $1; }
 
-    /* 7. RETORNO (¡Faltaba esto!) */
+    /* 7. RETORNO */
     | RETORNAR expresion PYC {
         $$ = crear_nodo_return($2);
     }
@@ -170,7 +170,7 @@ declaracion_func:
     FUNCION TIPO_INT ID PAR_IZQ args_func PAR_DER bloque {
         $$ = crear_nodo(NODO_FUNCION); $$->nombre = $3; $$->parametros = $5; $$->cuerpo = $7;
     }
-    /* Función con tipo SIN argumentos (¡Faltaba esto!) */
+    /* Función con tipo SIN argumentos */
     | FUNCION TIPO_INT ID PAR_IZQ PAR_DER bloque {
         $$ = crear_nodo(NODO_FUNCION); $$->nombre = $3; $$->cuerpo = $6;
     }
@@ -232,7 +232,7 @@ factor:
     | FALSO { $$ = crear_nodo(NODO_BOOLEANO); $$->valor_bool = 0; }
     | PAR_IZQ expresion PAR_DER { $$ = $2; }
     
-    /* MENOS UNARIO (-5) ¡Faltaba esto! */
+    /* MENOS UNARIO (-5) */
     | MENOS factor %prec UMENOS {
         $$ = crear_nodo(NODO_BINARIO);
         $$->operador = strdup("-");
@@ -268,5 +268,6 @@ lista_args:
         Nodo* t = $1; while(t->siguiente) t = t->siguiente; t->siguiente = $3; $$ = $1; 
     }
     ;
+
 
 %%
