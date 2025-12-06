@@ -252,6 +252,25 @@ bloque:
     LLAVE_IZQ lista_instr LLAVE_DER { $$ = $2; }
     | LLAVE_IZQ LLAVE_DER { $$ = NULL; }
     ;
+arreglo_literal:
+    CORCHETE_IZQ lista_elementos CORCHETE_DER {
+        $$ = crear_nodo(NODO_ARREGLO);
+        $$->izq = $2;
+    }
+    | CORCHETE_IZQ CORCHETE_DER {
+        $$ = crear_nodo(NODO_ARREGLO);
+    }
+    ;
+
+lista_elementos:
+    expresion { $$ = $1; }
+    | lista_elementos COMA expresion { 
+        Nodo* t = $1; 
+        while(t->siguiente) t = t->siguiente; 
+        t->siguiente = $3; 
+        $$ = $1; 
+    }
+    ;
 
 /* Expresiones */
 expresion:
@@ -326,4 +345,5 @@ lista_args:
 
 
 %%
+
 
