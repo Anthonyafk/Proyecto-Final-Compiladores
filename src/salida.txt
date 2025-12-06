@@ -81,3 +81,16 @@ ASSIGN 50 T22
 VAR numeros_3
 ASSIGN T22 numeros_3
 ASSIGN 4 numeros_size
+ASSIGN 2 T24
+LT T24 numeros_size T26
+IF T26 GOTO L14
+LABEL L15
+PRINT "Error: Indice fuera de rango"
+ASSIGN 0 T25
+GOTO L16
+LABEL L14
+ASSIGN numeros_2 T25
+LABEL L16
+VAR numeros_4
+ASSIGN T25 numeros_4
+ASSIGN 5 numeros_size
