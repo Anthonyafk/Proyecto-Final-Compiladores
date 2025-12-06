@@ -5,7 +5,7 @@ LEX = flex
 YACC = bison
 
 EXEC = compilador
-SRC = torneo_v2.esp
+SRC = arreglos.esp
 OUT = salida.txt
 
 GEN_SRC = parser.tab.c parser.tab.h lex.yy.c

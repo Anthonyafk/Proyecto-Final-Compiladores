@@ -32,7 +32,10 @@ typedef enum {
     NODO_ACCESO_ARRAY,
     NODO_ASIGNACION_ARRAY,
     NODO_LONGITUD,
-    NODO_CARACTER_EN
+    NODO_CARACTER_EN,
+    NODO_AGREGAR,
+    NODO_ELIMINAR,
+    NODO_TAMANO_ARRAY
 } TipoNodo;
 
 typedef enum {
@@ -70,6 +73,8 @@ typedef struct Nodo {
     TipoDato tipo_dato;
     struct Nodo** elementos;
     int num_elementos;
+    int es_arreglo;           // Nuevo: flag para saber si es arreglo
+    TipoDato tipo_elemento;   // Nuevo: tipo de los elementos del arreglo
 } Nodo;
 
 Nodo* crear_nodo(TipoNodo tipo);

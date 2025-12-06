@@ -47,6 +47,9 @@ char* mi_strdup(const char* s) {
 
 "longitud"          { return LONGITUD; }
 "caracter_en"       { return CARACTER_EN; }
+"agregar"           { return AGREGAR; }
+"eliminar"          { return ELIMINAR; }
+"tamano"            { return TAMANO; }
 
 "=="                { return IGUAL_QUE; }
 "!="                { return DIFERENTE; }

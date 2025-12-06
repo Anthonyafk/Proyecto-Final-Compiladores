@@ -28,6 +28,8 @@ Nodo* crear_nodo(TipoNodo tipo) {
     n->valor_bool = 0;
     n->elementos = NULL;
     n->num_elementos = 0;
+    n->es_arreglo = 0;
+    n->tipo_elemento = TIPO_DATO_NULO;
     return n;
 }
 

@@ -10,6 +10,33 @@ int temp_count = 0;
 void generar_codigo(Nodo* n);
 char* generar_expresion(Nodo* n);
 
+// Variables globales en codegen.c
+typedef struct ArrayInfo {
+    char* nombre;
+    int size_actual;
+    struct ArrayInfo* siguiente;
+} ArrayInfo;
+
+ArrayInfo* arrays_info = NULL;
+
+// Función para obtener/crear info de arreglo
+ArrayInfo* obtener_array_info(char* nombre) {
+    ArrayInfo* actual = arrays_info;
+    while (actual) {
+        if (strcmp(actual->nombre, nombre) == 0) {
+            return actual;
+        }
+        actual = actual->siguiente;
+    }
+    // Crear nuevo
+    ArrayInfo* nuevo = (ArrayInfo*)malloc(sizeof(ArrayInfo));
+    nuevo->nombre = strdup(nombre);
+    nuevo->size_actual = 0;
+    nuevo->siguiente = arrays_info;
+    arrays_info = nuevo;
+    return nuevo;
+}
+
 char* safe_strdup(const char* s) {
     if (!s) return NULL;
     char* copy = (char*)malloc(strlen(s) + 1);
@@ -108,6 +135,45 @@ char* generar_expresion(Nodo* n) {
             // Llamar a la subrutina
             printf("GOSUB %s\n", n->nombre);
             return t;
+        case NODO_ACCESO_ARRAY: {
+            // arr[indice]
+            char* idx = generar_expresion(n->indice);
+            char* t = nuevo_temp();
+
+            // Verificar rango
+            char* t_valid = nuevo_temp();
+            printf("LT %s %s_size %s\n", idx, n->nombre, t_valid);
+
+            int L_safe = nueva_etiqueta();
+            int L_error = nueva_etiqueta();
+            int L_end = nueva_etiqueta();
+
+            printf("IF %s GOTO L%d\n", t_valid, L_safe);
+
+            printf("LABEL L%d\n", L_error);
+            printf("PRINT \"Error: Indice fuera de rango\"\n");
+            printf("ASSIGN 0 %s\n", t);
+            printf("GOTO L%d\n", L_end);
+
+            printf("LABEL L%d\n", L_safe);
+            // Acceso directo a la variable
+            printf("ASSIGN %s_%d %s\n", n->nombre, n->indice->valor_int, t);
+
+            printf("LABEL L%d\n", L_end);
+            return t;
+        }
+        case NODO_LONGITUD: {
+            char* t = nuevo_temp();
+            if (n->izq && n->izq->tipo == NODO_ID) {
+                printf("ASSIGN %s_size %s\n", n->izq->nombre, t);
+            }
+            return t;
+        }
+        case NODO_TAMANO_ARRAY: {
+            char* t = nuevo_temp();
+            printf("ASSIGN %s_size %s\n", n->nombre, t);
+            return t;
+        }
         default:
             return t;
     }
@@ -138,12 +204,154 @@ void generar_codigo(Nodo* n) {
 
         // Variables y Asignaciones
         case NODO_VAR_DECL:
-            printf("VAR %s\n", n->nombre);
-            if (n->izq) {
-                char* t = generar_expresion(n->izq);
-                printf("ASSIGN %s %s\n", t, n->nombre);
+            if (n->es_arreglo) {
+                // Declarar puntero base del arreglo
+                printf("VAR %s\n", n->nombre);
+
+                // Declarar variable para el tamaño
+                printf("VAR %s_size\n", n->nombre);
+                printf("ASSIGN 0 %s_size\n", n->nombre);
+
+                // Obtener info del arreglo
+                ArrayInfo* arr_info = obtener_array_info(n->nombre);
+
+                // Si tiene inicialización con literal [1, 2, 3]
+                if (n->izq && n->izq->tipo == NODO_ARREGLO) {
+                    Nodo* elemento = n->izq->izq;
+                    int index = 0;
+
+                    // Reservar memoria para cada elemento
+                    while (elemento) {
+                        // Crear variable temporal para cada posición
+                        printf("VAR %s_%d\n", n->nombre, index);
+
+                        char* t = generar_expresion(elemento);
+                        printf("ASSIGN %s %s_%d\n", t, n->nombre, index);
+
+                        index++;
+                        elemento = elemento->siguiente;
+                    }
+
+                    // Actualizar tamaño
+                    printf("ASSIGN %d %s_size\n", index, n->nombre);
+                    arr_info->size_actual = index;
+                }
+            } else {
+                // Declaración normal de variable
+                printf("VAR %s\n", n->nombre);
+                if (n->izq) {
+                    char* t = generar_expresion(n->izq);
+                    printf("ASSIGN %s %s\n", t, n->nombre);
+                }
             }
             break;
+
+        case NODO_ASIGNACION_ARRAY: {
+            // arr[indice] = valor
+            char* idx = generar_expresion(n->indice);
+            char* val = generar_expresion(n->izq);
+
+            // Comentario para claridad
+            //printf("// %s[%s] = %s\n", n->nombre, idx, val);
+
+            // Verificar que el índice esté en rango
+            char* t_valid = nuevo_temp();
+            printf("LT %s %s_size %s\n", idx, n->nombre, t_valid);
+
+            int L_safe = nueva_etiqueta();
+            int L_end = nueva_etiqueta();
+            printf("IF %s GOTO L%d\n", t_valid, L_safe);
+            printf("PRINT \"Error: Indice fuera de rango\"\n");
+            printf("GOTO L%d\n", L_end);
+
+            printf("LABEL L%d\n", L_safe);
+            // Asignar directamente a la variable correspondiente
+            printf("ASSIGN %s %s_%d\n", val, n->nombre, n->indice->valor_int);
+            printf("LABEL L%d\n", L_end);
+
+            break;
+        }
+        
+        case NODO_AGREGAR: {
+            // agregar(arr, valor)
+            char* val = generar_expresion(n->izq);
+            //printf("// agregar(%s, %s)\n", n->nombre, val);
+
+            // Obtener info del arreglo
+            ArrayInfo* arr_info = obtener_array_info(n->nombre);
+            int nuevo_indice = arr_info->size_actual;
+
+            // Crear nueva variable con el índice correcto
+            printf("VAR %s_%d\n", n->nombre, nuevo_indice);
+            printf("ASSIGN %s %s_%d\n", val, n->nombre, nuevo_indice);
+
+            // Incrementar tamaño
+            arr_info->size_actual++;
+            printf("ASSIGN %d %s_size\n", arr_info->size_actual, n->nombre);
+            break;
+        }
+        case NODO_ELIMINAR: {
+            // eliminar(arr, indice)
+            //char* idx = generar_expresion(n->indice);
+            //printf("// eliminar(%s, índice en %s)\n", n->nombre, idx);
+            
+            // Obtener info del arreglo
+            ArrayInfo* arr_info = obtener_array_info(n->nombre);
+            
+            // Verificar rango
+            char* t_valid = nuevo_temp();
+            printf("LT %d %s_size %s\n", n->indice->valor_int, n->nombre, t_valid);
+
+            int L_valid = nueva_etiqueta();
+            int L_end = nueva_etiqueta();
+
+            printf("IF %s GOTO L%d\n", t_valid, L_valid);
+            printf("PRINT \"Error: Indice fuera de rango\"\n");
+            printf("GOTO L%d\n", L_end);
+
+            printf("LABEL L%d\n", L_valid);
+
+            // Generar código para desplazar elementos
+            /* Necesitamos hacer esto para cada posición posible
+            for (int i = 0; i < arr_info->size_actual - 1; i++) {
+                int L_check = nueva_etiqueta();
+                int L_next = nueva_etiqueta();
+
+                // Si idx == i, entonces desplazar desde i+1
+                char* cond_i = nuevo_temp();
+                printf("EQ %d %d %s\n", n->indice->valor_int, i, cond_i);
+                printf("IF %s GOTO L%d\n", cond_i, L_check);
+                printf("GOTO L%d\n", L_next);
+
+                printf("LABEL L%d\n", L_check);
+                // Desplazar: arr[i] = arr[i+1]
+                printf("ASSIGN %s_%d %s_%d\n", n->nombre, i+1, n->nombre, i);
+
+                printf("LABEL L%d\n", L_next);
+            }*/
+            for (int i = 0; i < arr_info->size_actual; i++) {
+                //int L_check = nueva_etiqueta();
+                int L_next = nueva_etiqueta();
+        
+                char* cond = nuevo_temp();
+                printf("EQ %d %d %s\n", n->indice->valor_int, i, cond);
+                printf("IFFALSE %s GOTO L%d\n", cond, L_next);
+        
+                // Desplazar todos los elementos siguientes
+                for (int j = i; j < arr_info->size_actual - 1; j++) {
+                    printf("ASSIGN %s_%d %s_%d\n", n->nombre, j+1, n->nombre, j);
+                }
+                //printf("GOTO L%d\n", L_next);
+                printf("LABEL L%d\n", L_next);
+            }
+    
+            // Decrementar tamaño
+            arr_info->size_actual--;
+            printf("ASSIGN %d %s_size\n", arr_info->size_actual, n->nombre);
+
+            printf("LABEL L%d\n", L_end);
+            break;
+        }
 
         case NODO_ASIGNACION: {
             char* t = generar_expresion(n->izq);

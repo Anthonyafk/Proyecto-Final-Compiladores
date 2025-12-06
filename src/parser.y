@@ -35,6 +35,7 @@ Nodo* crear_nodo_return(Nodo* expr) {
 %token SI OSI SINO MIENTRAS PARA PARACADA EN IMPRIMIR RETORNAR
 %token PINTAR_PIXEL LEER_TECLA OBTENER_TECLA ENTRADA
 %token LONGITUD CARACTER_EN
+%token AGREGAR ELIMINAR TAMANO
 
 %token IGUAL_QUE DIFERENTE MENOR_QUE MAYOR_QUE MENOR_IGUAL MAYOR_IGUAL
 %token ASIGNAR MAS MENOS MULTIPLICAR DIVIDIR MODULO POTENCIA
@@ -122,24 +123,65 @@ instruccion:
         $$->tipo_dato = TIPO_DATO_FLOAT;
     }
     | VARIABLE TIPO_INT CORCHETE_IZQ CORCHETE_DER ID ASIGNAR arreglo_literal PYC {
-        $$ = crear_nodo(NODO_VAR_DECL); 
-        $$->nombre = $5; 
+        $$ = crear_nodo(NODO_VAR_DECL);
+        $$->nombre = $5;
         $$->tipo_dato = TIPO_DATO_POINTER;
+        $$->es_arreglo = 1;
+        $$->tipo_elemento = TIPO_DATO_INT;
         $$->izq = $7;
+    }
+    | VARIABLE TIPO_INT CORCHETE_IZQ CORCHETE_DER ID PYC {
+        $$ = crear_nodo(NODO_VAR_DECL);
+        $$->nombre = $5;
+        $$->tipo_dato = TIPO_DATO_POINTER;
+        $$->es_arreglo = 1;
+        $$->tipo_elemento = TIPO_DATO_INT;
     }
     | VARIABLE TIPO_BOOL CORCHETE_IZQ CORCHETE_DER ID ASIGNAR arreglo_literal PYC {
         $$ = crear_nodo(NODO_VAR_DECL); 
         $$->nombre = $5; 
         $$->tipo_dato = TIPO_DATO_POINTER;
+        $$->es_arreglo = 1;
+        $$->tipo_elemento = TIPO_DATO_BOOL;
         $$->izq = $7;
+    }
+    | VARIABLE TIPO_BOOL CORCHETE_IZQ CORCHETE_DER ID PYC {
+        $$ = crear_nodo(NODO_VAR_DECL);
+        $$->nombre = $5;
+        $$->tipo_dato = TIPO_DATO_POINTER;
+        $$->es_arreglo = 1;
+        $$->tipo_elemento = TIPO_DATO_BOOL;
     }
     | VARIABLE TIPO_FLOAT CORCHETE_IZQ CORCHETE_DER ID ASIGNAR arreglo_literal PYC {
-        $$ = crear_nodo(NODO_VAR_DECL); 
-        $$->nombre = $5; 
+        $$ = crear_nodo(NODO_VAR_DECL);
+        $$->nombre = $5;
         $$->tipo_dato = TIPO_DATO_POINTER;
+        $$->es_arreglo = 1;
+        $$->tipo_elemento = TIPO_DATO_FLOAT;
         $$->izq = $7;
     }
-
+    | VARIABLE TIPO_FLOAT CORCHETE_IZQ CORCHETE_DER ID PYC {
+        $$ = crear_nodo(NODO_VAR_DECL);
+        $$->nombre = $5;
+        $$->tipo_dato = TIPO_DATO_POINTER;
+        $$->es_arreglo = 1;
+        $$->tipo_elemento = TIPO_DATO_FLOAT;
+    }
+    | VARIABLE TIPO_STRING CORCHETE_IZQ CORCHETE_DER ID ASIGNAR arreglo_literal PYC {
+        $$ = crear_nodo(NODO_VAR_DECL);
+        $$->nombre = $5;
+        $$->tipo_dato = TIPO_DATO_POINTER;
+        $$->es_arreglo = 1;
+        $$->tipo_elemento = TIPO_DATO_STRING;
+        $$->izq = $7;
+    }
+    | VARIABLE TIPO_STRING CORCHETE_IZQ CORCHETE_DER ID PYC {
+        $$ = crear_nodo(NODO_VAR_DECL);
+        $$->nombre = $5;
+        $$->tipo_dato = TIPO_DATO_POINTER;
+        $$->es_arreglo = 1;
+        $$->tipo_elemento = TIPO_DATO_STRING;
+    }
     /* 2. Asignación */
     | ID ASIGNAR expresion PYC {
         $$ = crear_nodo(NODO_ASIGNACION); $$->nombre = $1; $$->izq = $3;
@@ -212,6 +254,17 @@ instruccion:
         Nodo* t = $3;
         while (t->siguiente) t = t->siguiente;
         t->siguiente = mientras;
+    }
+    /* Operaciones dinámicas de arreglos */
+    | AGREGAR PAR_IZQ ID COMA expresion PAR_DER PYC {
+        $$ = crear_nodo(NODO_AGREGAR);
+        $$->nombre = $3;
+        $$->izq = $5;
+    }
+    | ELIMINAR PAR_IZQ ID COMA expresion PAR_DER PYC {
+        $$ = crear_nodo(NODO_ELIMINAR);
+        $$->nombre = $3;
+        $$->indice = $5;
     }
     ;
 
@@ -335,6 +388,11 @@ factor:
     | ID PAR_IZQ PAR_DER {
         $$ = crear_nodo(NODO_LLAMADA_FUNC); $$->nombre = $1;
     }
+    | TAMANO PAR_IZQ ID PAR_DER {
+        $$ = crear_nodo(NODO_TAMANO_ARRAY);
+        $$->nombre = $3;
+    }
+    ;
     ;
 
 lista_args:
