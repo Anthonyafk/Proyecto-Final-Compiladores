@@ -42,7 +42,7 @@ Nodo* crear_nodo_return(Nodo* expr) {
 %token PYC COMA Y O NO
 
 /* No terminales */
-%type <nodo> programa lista_instr instruccion expresion bloque factor 
+%type <nodo> programa lista_instr instruccion expresion bloque factor arreglo_literal lista_elementos
 %type <nodo> lista_args declaracion_func args_func arg_func
 
 /* Precedencia (de menor a mayor) */
@@ -83,10 +83,20 @@ instruccion:
         $$->izq = $5; 
         $$->tipo_dato = TIPO_DATO_INT;
     }
+    | VARIABLE TIPO_INT ID PYC {
+        $$ = crear_nodo(NODO_VAR_DECL); 
+        $$->nombre = $3; 
+        $$->tipo_dato = TIPO_DATO_INT;
+    }
     | VARIABLE TIPO_BOOL ID ASIGNAR expresion PYC {
         $$ = crear_nodo(NODO_VAR_DECL); 
         $$->nombre = $3; 
         $$->izq = $5; 
+        $$->tipo_dato = TIPO_DATO_BOOL;
+    }
+    | VARIABLE TIPO_BOOL ID PYC {
+        $$ = crear_nodo(NODO_VAR_DECL); 
+        $$->nombre = $3;
         $$->tipo_dato = TIPO_DATO_BOOL;
     }
     | VARIABLE TIPO_STRING ID ASIGNAR expresion PYC { 
@@ -95,10 +105,50 @@ instruccion:
         $$->izq = $5;
         $$->tipo_dato = TIPO_DATO_STRING;
     }
+    | VARIABLE TIPO_STRING ID PYC { 
+        $$ = crear_nodo(NODO_VAR_DECL); 
+        $$->nombre = $3;
+        $$->tipo_dato = TIPO_DATO_STRING;
+    }
+    | VARIABLE TIPO_FLOAT ID ASIGNAR expresion PYC {
+        $$ = crear_nodo(NODO_VAR_DECL); 
+        $$->nombre = $3; 
+        $$->tipo_dato = TIPO_DATO_FLOAT;
+        $$->izq = $5; 
+    }
+    | VARIABLE TIPO_FLOAT ID PYC {
+        $$ = crear_nodo(NODO_VAR_DECL); 
+        $$->nombre = $3; 
+        $$->tipo_dato = TIPO_DATO_FLOAT;
+    }
+    | VARIABLE TIPO_INT CORCHETE_IZQ CORCHETE_DER ID ASIGNAR arreglo_literal PYC {
+        $$ = crear_nodo(NODO_VAR_DECL); 
+        $$->nombre = $5; 
+        $$->tipo_dato = TIPO_DATO_POINTER;
+        $$->izq = $7;
+    }
+    | VARIABLE TIPO_BOOL CORCHETE_IZQ CORCHETE_DER ID ASIGNAR arreglo_literal PYC {
+        $$ = crear_nodo(NODO_VAR_DECL); 
+        $$->nombre = $5; 
+        $$->tipo_dato = TIPO_DATO_POINTER;
+        $$->izq = $7;
+    }
+    | VARIABLE TIPO_FLOAT CORCHETE_IZQ CORCHETE_DER ID ASIGNAR arreglo_literal PYC {
+        $$ = crear_nodo(NODO_VAR_DECL); 
+        $$->nombre = $5; 
+        $$->tipo_dato = TIPO_DATO_POINTER;
+        $$->izq = $7;
+    }
 
     /* 2. Asignación */
     | ID ASIGNAR expresion PYC {
         $$ = crear_nodo(NODO_ASIGNACION); $$->nombre = $1; $$->izq = $3;
+    }
+    | ID CORCHETE_IZQ expresion CORCHETE_DER ASIGNAR expresion PYC {
+        $$ = crear_nodo(NODO_ASIGNACION_ARRAY);
+        $$->nombre = $1;
+        $$->indice = $3;
+        $$->izq = $6;
     }
     
     /* 3. Control de Flujo */
@@ -231,6 +281,11 @@ factor:
     | VERDADERO { $$ = crear_nodo(NODO_BOOLEANO); $$->valor_bool = 1; }
     | FALSO { $$ = crear_nodo(NODO_BOOLEANO); $$->valor_bool = 0; }
     | PAR_IZQ expresion PAR_DER { $$ = $2; }
+    | ID CORCHETE_IZQ expresion CORCHETE_DER {
+        $$ = crear_nodo(NODO_ACCESO_ARRAY);
+        $$->nombre = $1;
+        $$->indice = $3;
+    }
     
     /* MENOS UNARIO (-5) */
     | MENOS factor %prec UMENOS {
@@ -271,3 +326,4 @@ lista_args:
 
 
 %%
+
