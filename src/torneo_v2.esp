@@ -9,7 +9,7 @@ r1 = (a < b);
 
 
 variable ENTERO gdc = 0;
-Si (r1 == 1) {
+Si (r1 == verdadero) {
 	gdc = a;
 } SiNo {
 	gdc = b;
