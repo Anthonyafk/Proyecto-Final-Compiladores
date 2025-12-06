@@ -48,6 +48,8 @@ char* mi_strdup(const char* s) {
 "longitud"          { return LONGITUD; }
 "caracter_en"       { return CARACTER_EN; }
 
+"DIV"               { return DIV_DECIMAL; }
+
 "=="                { return IGUAL_QUE; }
 "!="                { return DIFERENTE; }
 "<="                { return MENOR_IGUAL; }

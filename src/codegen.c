@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include "ast.h"
 
-// Variables globales
 int label_count = 0;
 int temp_count = 0;
 
@@ -27,18 +26,31 @@ int nueva_etiqueta() {
     return label_count++; 
 }
 
-// Generación de las expresiones
 char* generar_expresion(Nodo* n) {
     if (!n) return NULL;
     char* t = nuevo_temp();
     char *t1, *t2;
 
     switch (n->tipo) {
-        case NODO_NUMERO: printf("ASSIGN %d %s\n", n->valor_int, t); return t;
-        case NODO_DECIMAL: printf("ASSIGN %f %s\n", n->valor_dec, t); return t;
-        case NODO_ID:     printf("ASSIGN %s %s\n", n->nombre, t); return t;
-        case NODO_CADENA: printf("ASSIGN %s %s\n", n->texto, t); return t;
-        case NODO_BOOLEANO: printf("ASSIGN %d %s\n", n->valor_bool, t); return t;
+        case NODO_NUMERO: 
+            printf("ASSIGN %d %s\n", n->valor_int, t); 
+            return t;
+            
+        case NODO_DECIMAL: 
+            printf("ASSIGN %f %s\n", n->valor_dec, t); 
+            return t;
+            
+        case NODO_ID:     
+            printf("ASSIGN %s %s\n", n->nombre, t); 
+            return t;
+            
+        case NODO_CADENA: 
+            printf("ASSIGN %s %s\n", n->texto, t); 
+            return t;
+            
+        case NODO_BOOLEANO: 
+            printf("ASSIGN %d %s\n", n->valor_bool, t); 
+            return t;
 
         case NODO_ENTRADA: 
             printf("INPUT %s\n", t); 
@@ -52,22 +64,52 @@ char* generar_expresion(Nodo* n) {
         case NODO_BINARIO:
             t1 = generar_expresion(n->izq);
             t2 = generar_expresion(n->der);
-            if (strcmp(n->operador, "+") == 0) printf("ADD %s %s %s\n", t1, t2, t);
-            else if (strcmp(n->operador, "-") == 0) printf("SUB %s %s %s\n", t1, t2, t);
-            else if (strcmp(n->operador, "*") == 0) printf("MUL %s %s %s\n", t1, t2, t);
-            else if (strcmp(n->operador, "/") == 0) printf("DIV %s %s %s\n", t1, t2, t);
-            else if (strcmp(n->operador, "%") == 0) printf("MOD %s %s %s\n", t1, t2, t);
+            
+            if (strcmp(n->operador, "+") == 0) {
+                printf("ADD %s %s %s\n", t1, t2, t);
+            }
+            else if (strcmp(n->operador, "-") == 0) {
+                printf("SUB %s %s %s\n", t1, t2, t);
+            }
+            else if (strcmp(n->operador, "*") == 0) {
+                printf("MUL %s %s %s\n", t1, t2, t);
+            }
+            else if (strcmp(n->operador, "/") == 0) {
+                // División entera trunca el resultado forzando a entero, restando la parte decimal
+                char* div_result = nuevo_temp();
+                char* one = nuevo_temp();
+                char* frac = nuevo_temp();
+                
+                printf("DIV %s %s %s\n", t1, t2, div_result);
+                printf("ASSIGN 1 %s\n", one);
+                printf("MOD %s %s %s\n", div_result, one, frac);  // Obtener parte decimal
+                printf("SUB %s %s %s\n", div_result, frac, t);    // Restar para obtener entero
+            }
+            else if (strcmp(n->operador, "DIV") == 0) {
+                // División DECIMAL: usa DIV directamente
+                printf("DIV %s %s %s\n", t1, t2, t);
+            }
+            else if (strcmp(n->operador, "%") == 0) {
+                printf("MOD %s %s %s\n", t1, t2, t);
+            }
             return t;
 
         case NODO_COMPARACION:
             t1 = generar_expresion(n->izq);
             t2 = generar_expresion(n->der);
-            if (strcmp(n->operador, "==") == 0) printf("EQ %s %s %s\n", t1, t2, t);
-            else if (strcmp(n->operador, "!=") == 0) printf("NEQ %s %s %s\n", t1, t2, t);
-            else if (strcmp(n->operador, "<") == 0) printf("LT %s %s %s\n", t1, t2, t);
-            else if (strcmp(n->operador, ">") == 0) printf("GT %s %s %s\n", t1, t2, t);
-            else if (strcmp(n->operador, "<=") == 0) printf("LTE %s %s %s\n", t1, t2, t);
-            else if (strcmp(n->operador, ">=") == 0) printf("GTE %s %s %s\n", t1, t2, t);
+            
+            if (strcmp(n->operador, "==") == 0) 
+                printf("EQ %s %s %s\n", t1, t2, t);
+            else if (strcmp(n->operador, "!=") == 0) 
+                printf("NEQ %s %s %s\n", t1, t2, t);
+            else if (strcmp(n->operador, "<") == 0) 
+                printf("LT %s %s %s\n", t1, t2, t);
+            else if (strcmp(n->operador, ">") == 0) 
+                printf("GT %s %s %s\n", t1, t2, t);
+            else if (strcmp(n->operador, "<=") == 0) 
+                printf("LTE %s %s %s\n", t1, t2, t);
+            else if (strcmp(n->operador, ">=") == 0) 
+                printf("GTE %s %s %s\n", t1, t2, t);
             return t;
             
         case NODO_LOGICO:
@@ -88,32 +130,38 @@ char* generar_expresion(Nodo* n) {
                 }
             }
             return t;
-        case NODO_LLAMADA_FUNC:
-            // Apilar argumentos con PARAM antes de GOSUB
-            Nodo* arg = n->argumentos;
-            int num_args = 0;
-            // Contar argumentos primero
-            Nodo* temp_arg = arg;
-            while (temp_arg) {
-                num_args++;
-                temp_arg = temp_arg->siguiente;
+            
+        case NODO_LONGITUD:
+            t1 = generar_expresion(n->izq);
+            printf("LENGTH %s %s\n", t1, t);
+            return t;
+            
+        case NODO_ACCESO_ARRAY:
+            if (n->indice) {
+                t1 = generar_expresion(n->indice);
+                printf("ARRAY_GET %s %s %s\n", n->nombre, t1, t);
             }
-            // Apilar argumentos en orden
-            arg = n->argumentos;
+            return t;
+        
+        case NODO_LLAMADA_FUNC: {
+            // Apilar argumentos
+            Nodo* arg = n->argumentos;
             while (arg) {
                 char* temp_arg_val = generar_expresion(arg);
                 printf("PARAM %s\n", temp_arg_val);
                 arg = arg->siguiente;
             }
-            // Llamar a la subrutina
+            // Llamar función
             printf("GOSUB %s\n", n->nombre);
+            printf("POP_RESULT %s\n", t);
             return t;
+        }
+            
         default:
             return t;
     }
 }
 
-// Recorre lista de instrucciones
 void generar_bloque(Nodo* n) {
     Nodo* actual = n;
     while (actual) {
@@ -122,21 +170,18 @@ void generar_bloque(Nodo* n) {
     }
 }
 
-// Generación de instrucciones
 void generar_codigo(Nodo* n) {
     if (!n) return;
 
     switch (n->tipo) {
-        // Estructura del programa
         case NODO_PROGRAMA:
             generar_bloque(n->siguiente); 
             break;
 
         case NODO_BLOQUE:
-            generar_bloque(n); // Recorremos el bloque interno
+            generar_bloque(n);
             break;
 
-        // Variables y Asignaciones
         case NODO_VAR_DECL:
             printf("VAR %s\n", n->nombre);
             if (n->izq) {
@@ -150,15 +195,21 @@ void generar_codigo(Nodo* n) {
             printf("ASSIGN %s %s\n", t, n->nombre);
             break;
         }
+        
+        case NODO_ASIGNACION_ARRAY: {
+            char* idx = generar_expresion(n->indice);
+            char* val = generar_expresion(n->izq);
+            printf("ARRAY_SET %s %s %s\n", n->nombre, idx, val);
+            break;
+        }
 
-        // Control de flujo
         case NODO_MIENTRAS: {
             int L1 = nueva_etiqueta();
             int L2 = nueva_etiqueta();
             printf("LABEL L%d\n", L1);
             char* c = generar_expresion(n->condicion);
             printf("IFFALSE %s GOTO L%d\n", c, L2);
-            generar_bloque(n->der); // Cuerpo
+            generar_bloque(n->der);
             printf("GOTO L%d\n", L1);
             printf("LABEL L%d\n", L2);
             break;
@@ -183,7 +234,6 @@ void generar_codigo(Nodo* n) {
             break;
         }
 
-        // Funciones nativas
         case NODO_IMPRIMIR: {
              char* t = generar_expresion(n->izq);
              printf("PRINT %s\n", t);
@@ -207,17 +257,16 @@ void generar_codigo(Nodo* n) {
         case NODO_RETURN:
             if(n->izq) {
                 char* t = generar_expresion(n->izq);
-                printf("// RETURN %s\n", t);
+                printf("PUSH_RESULT %s\n", t);
             }
             printf("RETURN\n");
             break;
 
-        // Casos que no generan código por sí mismos
         case NODO_FUNCION: 
             printf("\n// Función: %s\n", n->nombre);
             printf("LABEL %s\n", n->nombre);
 
-            // Recuperamos parámetros
+            // Recuperar parámetros
             Nodo* param = n->parametros;
             int param_idx = 0;
             while (param) {
@@ -227,10 +276,10 @@ void generar_codigo(Nodo* n) {
                 param = param->siguiente;
             }
 
-            // Generamos cuerpo de la función
+            // Generar cuerpo
             generar_bloque(n->cuerpo);
 
-            // Si no hay return explícito, lo agregamos
+            // Return implícito
             printf("RETURN\n\n");
             break;
             
@@ -245,6 +294,6 @@ void generar_codigo(Nodo* n) {
 }
 
 void generar_codigo_programa(Nodo* raiz) {
-    generar_codigo(raiz); // Inicia la recursión
-    //printf("HALT\n");
+    printf("// Código Intermedio FIS-25\n");
+    generar_codigo(raiz);
 }
