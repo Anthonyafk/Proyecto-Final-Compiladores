@@ -246,5 +246,5 @@ void generar_codigo(Nodo* n) {
 
 void generar_codigo_programa(Nodo* raiz) {
     generar_codigo(raiz); // Inicia la recursión
-    printf("HALT\n");
+    //printf("HALT\n");
 }

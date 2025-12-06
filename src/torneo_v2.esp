@@ -1,0 +1,27 @@
+variable ENTERO a = 0;
+variable ENTERO b = 0;
+
+a = entrada();
+b = entrada();
+
+variable BOOLEANO r1 = falso;
+r1 = (a < b);
+
+
+variable ENTERO gdc = 0;
+Si (r1 == 1) {
+	gdc = a;
+} SiNo {
+	gdc = b;
+}
+
+variable BOOLEANO terminar = falso;
+Mientras ( (gdc > 0) Y (No terminar) ) {
+	Si ( ((a % gdc) == 0) Y ((b % gdc) == 0) ) {
+    terminar = verdadero;
+  } SiNo {
+    gdc = gdc - 1;
+  }
+}
+
+imprimir(gdc);

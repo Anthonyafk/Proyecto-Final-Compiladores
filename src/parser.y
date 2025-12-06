@@ -290,6 +290,7 @@ expresion:
     
     | expresion Y expresion { $$ = crear_nodo(NODO_LOGICO); $$->operador = strdup("Y"); $$->izq = $1; $$->der = $3; }
     | expresion O expresion { $$ = crear_nodo(NODO_LOGICO); $$->operador = strdup("O"); $$->izq = $1; $$->der = $3; }
+    | NO expresion { $$ = crear_nodo(NODO_LOGICO); $$->operador = strdup("No"); $$->izq = $2; }
     ;
 
 factor:
