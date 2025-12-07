@@ -97,7 +97,10 @@ src/
 ├── semantics.h / .c     # Análisis semántico
 ├── codegen.h / .c       # Generación de código
 ├── main.c               # Principal
-├── reloj.esp            # Código fuente
+├── reloj.esp            # Código fuente (reloj analógico)
+├── torneo_v2.esp        # MCD con funciones
+├── arreglos.esp         # Pruebas de arreglos
+├── div.esp              # División entera
 └── salida.txt           # Código intermedio
 ```
 
@@ -114,9 +117,3 @@ Proceso:
 3. GCC → `compilador`
 4. Ejecuta sobre `reloj.esp`
 5. Genera `salida.txt`
-
-## Curso
-
-**Laboratorio de Compiladores**  
-Diciembre 2025
-
