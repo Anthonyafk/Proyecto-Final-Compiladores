@@ -1,4 +1,3 @@
-// Código Intermedio FIS-25
 VAR numero
 INPUT T0
 ASSIGN T0 numero

@@ -493,7 +493,7 @@ void generar_codigo(Nodo* n) {
 }
 
 void generar_codigo_programa(Nodo* raiz) {
-    printf("// Código Intermedio FIS-25\n");
+    //printf("// Código Intermedio FIS-25\n");
     generar_codigo(raiz); // Inicia la recursión
 
 }
