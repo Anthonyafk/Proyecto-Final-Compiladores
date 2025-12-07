@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include "ast.h"
 
+// Variables globales
 int label_count = 0;
 int temp_count = 0;
 
@@ -53,6 +54,7 @@ int nueva_etiqueta() {
     return label_count++; 
 }
 
+// Generación de las expresiones
 char* generar_expresion(Nodo* n) {
     if (!n) return NULL;
     char* t = nuevo_temp();
@@ -62,19 +64,19 @@ char* generar_expresion(Nodo* n) {
         case NODO_NUMERO: 
             printf("ASSIGN %d %s\n", n->valor_int, t); 
             return t;
-            
+
         case NODO_DECIMAL: 
             printf("ASSIGN %f %s\n", n->valor_dec, t); 
             return t;
-            
+
         case NODO_ID:     
             printf("ASSIGN %s %s\n", n->nombre, t); 
             return t;
-            
+
         case NODO_CADENA: 
             printf("ASSIGN %s %s\n", n->texto, t); 
             return t;
-            
+
         case NODO_BOOLEANO: 
             printf("ASSIGN %d %s\n", n->valor_bool, t); 
             return t;
@@ -124,10 +126,9 @@ char* generar_expresion(Nodo* n) {
         case NODO_COMPARACION:
             t1 = generar_expresion(n->izq);
             t2 = generar_expresion(n->der);
-            
             if (strcmp(n->operador, "==") == 0) 
                 printf("EQ %s %s %s\n", t1, t2, t);
-            else if (strcmp(n->operador, "!=") == 0) 
+            else if (strcmp(n->operador, "!=") == 0)
                 printf("NEQ %s %s %s\n", t1, t2, t);
             else if (strcmp(n->operador, "<") == 0) 
                 printf("LT %s %s %s\n", t1, t2, t);
@@ -157,7 +158,27 @@ char* generar_expresion(Nodo* n) {
                 }
             }
             return t;
-        
+/*        case NODO_LLAMADA_FUNC:
+            // Apilar argumentos con PARAM antes de GOSUB
+            Nodo* arg = n->argumentos;
+            int num_args = 0;
+            // Contar argumentos primero
+            Nodo* temp_arg = arg;
+            while (temp_arg) {
+                num_args++;
+                temp_arg = temp_arg->siguiente;
+            }
+            // Apilar argumentos en orden
+            arg = n->argumentos;
+            while (arg) {
+                char* temp_arg_val = generar_expresion(arg);
+                printf("PARAM %s\n", temp_arg_val);
+                arg = arg->siguiente;
+            }
+            // Llamar a la subrutina
+            printf("GOSUB %s\n", n->nombre);
+            return t;
+*/
         case NODO_LLAMADA_FUNC: {
             // Apilar argumentos
             Nodo* arg = n->argumentos;
@@ -170,6 +191,8 @@ char* generar_expresion(Nodo* n) {
             printf("GOSUB %s\n", n->nombre);
             printf("POP_RESULT %s\n", t);
             return t;
+        }
+
         case NODO_ACCESO_ARRAY: {
             // arr[indice]
             char* idx = generar_expresion(n->indice);
@@ -197,7 +220,6 @@ char* generar_expresion(Nodo* n) {
             printf("LABEL L%d\n", L_end);
             return t;
         }
-
         case NODO_LONGITUD: {
             char* t = nuevo_temp();
             if (n->izq && n->izq->tipo == NODO_ID) {
@@ -210,13 +232,12 @@ char* generar_expresion(Nodo* n) {
             printf("ASSIGN %s_size %s\n", n->nombre, t);
             return t;
         }
-        }
-            
         default:
             return t;
     }
 }
 
+// Recorre lista de instrucciones
 void generar_bloque(Nodo* n) {
     Nodo* actual = n;
     while (actual) {
@@ -225,18 +246,21 @@ void generar_bloque(Nodo* n) {
     }
 }
 
+// Generación de instrucciones
 void generar_codigo(Nodo* n) {
     if (!n) return;
 
     switch (n->tipo) {
+        // Estructura del programa
         case NODO_PROGRAMA:
             generar_bloque(n->siguiente); 
             break;
 
         case NODO_BLOQUE:
-            generar_bloque(n);
+            generar_bloque(n); // Recorremos el bloque interno
             break;
 
+        // Variables y Asignaciones
         case NODO_VAR_DECL:
             if (n->es_arreglo) {
                 // Declarar puntero base del arreglo
@@ -345,24 +369,6 @@ void generar_codigo(Nodo* n) {
 
             printf("LABEL L%d\n", L_valid);
 
-            // Generar código para desplazar elementos
-            /* Necesitamos hacer esto para cada posición posible
-            for (int i = 0; i < arr_info->size_actual - 1; i++) {
-                int L_check = nueva_etiqueta();
-                int L_next = nueva_etiqueta();
-
-                // Si idx == i, entonces desplazar desde i+1
-                char* cond_i = nuevo_temp();
-                printf("EQ %d %d %s\n", n->indice->valor_int, i, cond_i);
-                printf("IF %s GOTO L%d\n", cond_i, L_check);
-                printf("GOTO L%d\n", L_next);
-
-                printf("LABEL L%d\n", L_check);
-                // Desplazar: arr[i] = arr[i+1]
-                printf("ASSIGN %s_%d %s_%d\n", n->nombre, i+1, n->nombre, i);
-
-                printf("LABEL L%d\n", L_next);
-            }*/
             for (int i = 0; i < arr_info->size_actual; i++) {
                 //int L_check = nueva_etiqueta();
                 int L_next = nueva_etiqueta();
@@ -393,13 +399,14 @@ void generar_codigo(Nodo* n) {
             break;
         }
 
+        // Control de flujo
         case NODO_MIENTRAS: {
             int L1 = nueva_etiqueta();
             int L2 = nueva_etiqueta();
             printf("LABEL L%d\n", L1);
             char* c = generar_expresion(n->condicion);
             printf("IFFALSE %s GOTO L%d\n", c, L2);
-            generar_bloque(n->der);
+            generar_bloque(n->der); // Cuerpo
             printf("GOTO L%d\n", L1);
             printf("LABEL L%d\n", L2);
             break;
@@ -424,6 +431,7 @@ void generar_codigo(Nodo* n) {
             break;
         }
 
+        // Funciones nativas
         case NODO_IMPRIMIR: {
              char* t = generar_expresion(n->izq);
              printf("PRINT %s\n", t);
@@ -447,16 +455,17 @@ void generar_codigo(Nodo* n) {
         case NODO_RETURN:
             if(n->izq) {
                 char* t = generar_expresion(n->izq);
-                printf("PUSH_RESULT %s\n", t);
+                printf("// RETURN %s\n", t);
             }
             printf("RETURN\n");
             break;
 
+        // Casos que no generan código por sí mismos
         case NODO_FUNCION: 
             printf("\n// Función: %s\n", n->nombre);
             printf("LABEL %s\n", n->nombre);
 
-            // Recuperar parámetros
+            // Recuperamos parámetros
             Nodo* param = n->parametros;
             int param_idx = 0;
             while (param) {
@@ -466,10 +475,10 @@ void generar_codigo(Nodo* n) {
                 param = param->siguiente;
             }
 
-            // Generar cuerpo
+            // Generamos cuerpo de la función
             generar_bloque(n->cuerpo);
 
-            // Return implícito
+            // Si no hay return explícito, lo agregamos
             printf("RETURN\n\n");
             break;
             
@@ -485,5 +494,6 @@ void generar_codigo(Nodo* n) {
 
 void generar_codigo_programa(Nodo* raiz) {
     printf("// Código Intermedio FIS-25\n");
-    generar_codigo(raiz);
+    generar_codigo(raiz); // Inicia la recursión
+
 }

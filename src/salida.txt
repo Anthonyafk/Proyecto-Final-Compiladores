@@ -1,96 +1,29 @@
-VAR numeros
-VAR numeros_size
-ASSIGN 0 numeros_size
-VAR numeros_0
-ASSIGN 10 T0
-ASSIGN T0 numeros_0
-VAR numeros_1
-ASSIGN 20 T1
-ASSIGN T1 numeros_1
-VAR numeros_2
-ASSIGN 30 T2
-ASSIGN T2 numeros_2
-ASSIGN 3 numeros_size
-VAR x
-ASSIGN 10 T3
-ASSIGN T3 x
-ASSIGN 2 T4
-ASSIGN 99 T5
-LT T4 numeros_size T6
-IF T6 GOTO L0
-PRINT "Error: Indice fuera de rango"
-GOTO L1
+// Código Intermedio FIS-25
+VAR numero
+INPUT T0
+ASSIGN T0 numero
+VAR suma
+ASSIGN 0 T1
+ASSIGN T1 suma
 LABEL L0
-ASSIGN T5 numeros_2
+ASSIGN numero T3
+ASSIGN 0 T4
+GT T3 T4 T2
+IFFALSE T2 GOTO L1
+ASSIGN suma T6
+ASSIGN numero T8
+ASSIGN 10 T9
+MOD T8 T9 T7
+ADD T6 T7 T5
+ASSIGN T5 suma
+ASSIGN numero T11
+ASSIGN 10 T12
+DIV T11 T12 T13
+ASSIGN 1 T14
+MOD T13 T14 T15
+SUB T13 T15 T10
+ASSIGN T10 numero
+GOTO L0
 LABEL L1
-ASSIGN 40 T7
-VAR numeros_3
-ASSIGN T7 numeros_3
-ASSIGN 4 numeros_size
-VAR y
-ASSIGN x T8
-ASSIGN T8 y
-ASSIGN 2 T10
-LT T10 numeros_size T12
-IF T12 GOTO L2
-LABEL L3
-PRINT "Error: Indice fuera de rango"
-ASSIGN 0 T11
-GOTO L4
-LABEL L2
-ASSIGN numeros_2 T11
-LABEL L4
-PRINT T11
-ASSIGN 0 T14
-LT T14 numeros_size T16
-IF T16 GOTO L5
-LABEL L6
-PRINT "Error: Indice fuera de rango"
-ASSIGN 0 T15
-GOTO L7
-LABEL L5
-ASSIGN numeros_0 T15
-LABEL L7
-PRINT T15
-LT 1 numeros_size T17
-IF T17 GOTO L8
-PRINT "Error: Indice fuera de rango"
-GOTO L9
-LABEL L8
-EQ 1 0 T18
-IFFALSE T18 GOTO L10
-ASSIGN numeros_1 numeros_0
-ASSIGN numeros_2 numeros_1
-ASSIGN numeros_3 numeros_2
-LABEL L10
-EQ 1 1 T19
-IFFALSE T19 GOTO L11
-ASSIGN numeros_2 numeros_1
-ASSIGN numeros_3 numeros_2
-LABEL L11
-EQ 1 2 T20
-IFFALSE T20 GOTO L12
-ASSIGN numeros_3 numeros_2
-LABEL L12
-EQ 1 3 T21
-IFFALSE T21 GOTO L13
-LABEL L13
-ASSIGN 3 numeros_size
-LABEL L9
-ASSIGN 50 T22
-VAR numeros_3
-ASSIGN T22 numeros_3
-ASSIGN 4 numeros_size
-ASSIGN 2 T24
-LT T24 numeros_size T26
-IF T26 GOTO L14
-LABEL L15
-PRINT "Error: Indice fuera de rango"
-ASSIGN 0 T25
-GOTO L16
-LABEL L14
-ASSIGN numeros_2 T25
-LABEL L16
-VAR numeros_4
-ASSIGN T25 numeros_4
-ASSIGN 5 numeros_size
+ASSIGN suma T16
+PRINT T16

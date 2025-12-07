@@ -11,6 +11,7 @@ extern int yylex();
 void yyerror(const char* s) { fprintf(stderr, "Error de sintaxis: %s\n", s); }
 Nodo* raiz;
 
+/* Helpers para crear nodos específicos */
 Nodo* crear_nodo_return(Nodo* expr) {
     Nodo* n = crear_nodo(NODO_RETURN);
     n->izq = expr;
@@ -53,12 +54,13 @@ Nodo* crear_nodo_return(Nodo* expr) {
 %left MULTIPLICAR DIVIDIR DIV_DECIMAL MODULO
 %right POTENCIA
 %right NO
-%right UMENOS
+%right UMENOS /* Para el menos unario (-5) */
 
 %%
 
 programa: 
     lista_instr { 
+        // Envolvemos la lista en un nodo raíz para que el main lo maneje fácil
         raiz = crear_nodo(NODO_PROGRAMA);
         raiz->siguiente = $1; 
     }
@@ -224,7 +226,7 @@ instruccion:
     /* 6. Definición de Funciones */
     | declaracion_func { $$ = $1; }
 
-    /* 7. Return */
+    /* 7. RETORNO */
     | RETORNAR expresion PYC {
         $$ = crear_nodo_return($2);
     }
@@ -235,16 +237,16 @@ instruccion:
     | PARA PAR_IZQ instruccion expresion PYC ID ASIGNAR expresion PAR_DER bloque {
         $$ = $3; 
         Nodo* mientras = crear_nodo(NODO_MIENTRAS);
-        mientras->condicion = $4;
+        mientras->condicion = $4; // Condición del medio
 
         Nodo* incremento = crear_nodo(NODO_ASIGNACION);
-        incremento->nombre = $6;
-        incremento->izq = $8;
+        incremento->nombre = $6; // ID del incremento
+        incremento->izq = $8;    // Expresión del incremento
         
         if ($10) {
-            mientras->der = $10;
+            mientras->der = $10; // Cuerpo del usuario
             Nodo* t = $10;
-            while (t->siguiente) t = t->siguiente;
+            while (t->siguiente) t = t->siguiente; // Ir al final de la lista del cuerpo
             t->siguiente = incremento;
         } else {
             mientras->der = incremento;
@@ -267,15 +269,18 @@ instruccion:
     ;
 
 declaracion_func:
+    /* Función con tipo y argumentos */
     FUNCION TIPO_INT ID PAR_IZQ args_func PAR_DER bloque {
         $$ = crear_nodo(NODO_FUNCION); $$->nombre = $3; $$->parametros = $5; $$->cuerpo = $7;
     }
+    /* Función con tipo SIN argumentos */
     | FUNCION TIPO_INT ID PAR_IZQ PAR_DER bloque {
         $$ = crear_nodo(NODO_FUNCION); $$->nombre = $3; $$->cuerpo = $6;
     }
     | FUNCION TIPO_BOOL ID PAR_IZQ args_func PAR_DER bloque {
         $$ = crear_nodo(NODO_FUNCION); $$->nombre = $3; $$->parametros = $5; $$->cuerpo = $7;
     }
+    /* Función void */
     | FUNCION TIPO_NULO ID PAR_IZQ args_func PAR_DER bloque {
         $$ = crear_nodo(NODO_FUNCION); $$->nombre = $3; $$->parametros = $5; $$->cuerpo = $7;
     }
@@ -300,7 +305,6 @@ bloque:
     LLAVE_IZQ lista_instr LLAVE_DER { $$ = $2; }
     | LLAVE_IZQ LLAVE_DER { $$ = NULL; }
     ;
-
 arreglo_literal:
     CORCHETE_IZQ lista_elementos CORCHETE_DER {
         $$ = crear_nodo(NODO_ARREGLO);
@@ -360,18 +364,15 @@ expresion:
         $$->izq = $1; 
         $$->der = $3; 
     }
-    
     | expresion IGUAL_QUE expresion { 
         $$ = crear_nodo(NODO_COMPARACION); 
         $$->operador = strdup("=="); 
-        $$->izq = $1; 
-        $$->der = $3; 
+        $$->izq = $1; $$->der = $3;
     }
     | expresion DIFERENTE expresion { 
         $$ = crear_nodo(NODO_COMPARACION); 
         $$->operador = strdup("!="); 
-        $$->izq = $1; 
-        $$->der = $3; 
+        $$->izq = $1; $$->der = $3; 
     }
     | expresion MENOR_QUE expresion { 
         $$ = crear_nodo(NODO_COMPARACION); 
@@ -382,8 +383,7 @@ expresion:
     | expresion MAYOR_QUE expresion { 
         $$ = crear_nodo(NODO_COMPARACION); 
         $$->operador = strdup(">"); 
-        $$->izq = $1; 
-        $$->der = $3; 
+        $$->izq = $1; $$->der = $3; 
     }
     | expresion MENOR_IGUAL expresion { 
         $$ = crear_nodo(NODO_COMPARACION); 
@@ -394,27 +394,22 @@ expresion:
     | expresion MAYOR_IGUAL expresion { 
         $$ = crear_nodo(NODO_COMPARACION); 
         $$->operador = strdup(">="); 
-        $$->izq = $1; 
-        $$->der = $3; 
+        $$->izq = $1; $$->der = $3; 
     }
-    
     | expresion Y expresion { 
         $$ = crear_nodo(NODO_LOGICO); 
         $$->operador = strdup("Y"); 
-        $$->izq = $1; 
-        $$->der = $3; 
+        $$->izq = $1; $$->der = $3; 
     }
     | expresion O expresion { 
         $$ = crear_nodo(NODO_LOGICO); 
         $$->operador = strdup("O"); 
-        $$->izq = $1; 
-        $$->der = $3; 
+        $$->izq = $1; $$->der = $3;
     }
     | NO expresion { 
         $$ = crear_nodo(NODO_LOGICO); 
         $$->operador = strdup("No"); 
-        $$->izq = $2; 
-    }
+        $$->izq = $2; }
     ;
 
 factor:
@@ -431,42 +426,33 @@ factor:
         $$->indice = $3;
     }
     
-    /* Menos unitario */
+    /* MENOS UNARIO (-5) */
     | MENOS factor %prec UMENOS {
         $$ = crear_nodo(NODO_BINARIO);
         $$->operador = strdup("-");
-        $$->izq = crear_nodo_numero(0);
+        $$->izq = crear_nodo_numero(0); // 0 - factor
         $$->der = $2;
     }
 
     /* Funciones nativas en expresión */
     | ENTRADA PAR_IZQ PAR_DER { $$ = crear_nodo(NODO_ENTRADA); }
-    | OBTENER_TECLA PAR_IZQ expresion PAR_DER { 
-        $$ = crear_nodo(NODO_OBTENER_TECLA); 
-        $$->izq = $3; 
-    }
+    | OBTENER_TECLA PAR_IZQ expresion PAR_DER { $$ = crear_nodo(NODO_OBTENER_TECLA); $$->izq = $3; }
     
     /* Funciones de Array */
     | LONGITUD PAR_IZQ expresion PAR_DER { 
-        $$ = crear_nodo(NODO_LONGITUD); 
-        $$->izq = $3; 
+        $$ = crear_nodo(NODO_LONGITUD); $$->izq = $3; 
     }
     | CARACTER_EN PAR_IZQ expresion COMA expresion PAR_DER {
-        $$ = crear_nodo(NODO_ACCESO_ARRAY); 
-        $$->nombre = "str"; 
-        $$->izq = $3; 
-        $$->der = $5;
+        /* Simplificado: Acceso a caracter en string/array */
+        $$ = crear_nodo(NODO_ACCESO_ARRAY); $$->nombre = "str"; $$->izq = $3; $$->der = $5;
     }
 
     /* Llamada a función con retorno */
     | ID PAR_IZQ lista_args PAR_DER {
-        $$ = crear_nodo(NODO_LLAMADA_FUNC); 
-        $$->nombre = $1; 
-        $$->argumentos = $3;
+        $$ = crear_nodo(NODO_LLAMADA_FUNC); $$->nombre = $1; $$->argumentos = $3;
     }
     | ID PAR_IZQ PAR_DER {
-        $$ = crear_nodo(NODO_LLAMADA_FUNC); 
-        $$->nombre = $1;
+        $$ = crear_nodo(NODO_LLAMADA_FUNC); $$->nombre = $1;
     }
     | TAMANO PAR_IZQ ID PAR_DER {
         $$ = crear_nodo(NODO_TAMANO_ARRAY);
@@ -478,11 +464,11 @@ factor:
 lista_args:
     expresion { $$ = $1; }
     | lista_args COMA expresion { 
-        Nodo* t = $1; 
-        while(t->siguiente) t = t->siguiente; 
-        t->siguiente = $3; 
-        $$ = $1; 
+        Nodo* t = $1; while(t->siguiente) t = t->siguiente; t->siguiente = $3; $$ = $1; 
     }
     ;
 
+
 %%
+
+

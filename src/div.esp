@@ -1,0 +1,9 @@
+variable ENTERO numero = entrada();
+variable ENTERO suma = 0;
+
+Mientras (numero > 0) {
+    suma = suma + (numero % 10);
+    numero = numero / 10;
+}
+
+imprimir(suma);
