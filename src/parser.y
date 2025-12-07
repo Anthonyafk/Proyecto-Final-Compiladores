@@ -297,8 +297,16 @@ args_func:
     ;
 
 arg_func:
-    TIPO_INT ID { $$ = crear_nodo(NODO_VAR_DECL); $$->nombre = $2; }
-    | TIPO_BOOL ID { $$ = crear_nodo(NODO_VAR_DECL); $$->nombre = $2; }
+    TIPO_INT ID { 
+        $$ = crear_nodo(NODO_VAR_DECL); 
+        $$->nombre = $2; 
+        $$->tipo_dato = TIPO_DATO_INT;
+    }
+    | TIPO_BOOL ID { 
+        $$ = crear_nodo(NODO_VAR_DECL); 
+        $$->nombre = $2; 
+        $$->tipo_dato = TIPO_DATO_BOOL;
+    }
     ;
 
 bloque:

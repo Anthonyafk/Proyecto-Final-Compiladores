@@ -329,10 +329,18 @@ void recorrer_y_validar(Nodo* n) {
             obtener_tipo(n->extra); // Color
             break;
 
-        case NODO_FUNCION:
-            recorrer_y_validar(n->parametros);
+        case NODO_FUNCION: {
+            // Declarar parámetros de la función en la tabla de símbolos
+            Nodo* param = n->parametros;
+            while (param) {
+                if (param->tipo == NODO_VAR_DECL) {
+                    declarar_variable(param->nombre, param->tipo_dato, param->es_arreglo, param->tipo_elemento);
+                }
+                param = param->siguiente;
+            }
             recorrer_y_validar(n->cuerpo);
             break;
+        }
             
         case NODO_RETURN:
             if (n->izq) {
