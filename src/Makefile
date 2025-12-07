@@ -5,7 +5,7 @@ LEX = flex
 YACC = bison
 
 EXEC = compilador
-SRC = arreglos.esp
+SRC = div.esp
 OUT = salida.txt
 
 GEN_SRC = parser.tab.c parser.tab.h lex.yy.c

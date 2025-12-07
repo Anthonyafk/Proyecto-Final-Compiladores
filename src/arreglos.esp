@@ -12,5 +12,3 @@ imprimir(numeros[0]);
 eliminar(numeros, 1);
 
 agregar(numeros, 50);
-
-agregar(numeros, numeros[2]);

@@ -3,13 +3,6 @@
 #include <string.h>
 #include "semantics.h"
 
-// Tabla de símbolos
-//typedef struct Simbolo {
-    //char* nombre;
-    //TipoDato tipo;
-    //struct Simbolo* siguiente;
-//} Simbolo;
-
 typedef struct Simbolo {
     char* nombre;
     TipoDato tipo;
@@ -21,7 +14,6 @@ typedef struct Simbolo {
 Simbolo* tabla_simbolos = NULL;
 int errores_semanticos = 0;
 
-
 void declarar_variable(char* nombre, TipoDato tipo, int es_arreglo, TipoDato tipo_elemento) {
     Simbolo* s = (Simbolo*)malloc(sizeof(Simbolo));
     s->nombre = strdup(nombre);
@@ -32,15 +24,8 @@ void declarar_variable(char* nombre, TipoDato tipo, int es_arreglo, TipoDato tip
     tabla_simbolos = s;
 }
 
-/* Agrega variable a la tabla
-void declarar_variable(char* nombre, TipoDato tipo) {
-    Simbolo* s = (Simbolo*)malloc(sizeof(Simbolo));
-    s->nombre = strdup(nombre);
-    s->tipo = tipo;
-    s->siguiente = tabla_simbolos;
-    tabla_simbolos = s;
-}*/
 
+// Busca variable de la tabla
 Simbolo* buscar_simbolo(char* nombre) {
     Simbolo* actual = tabla_simbolos;
     while (actual) {
@@ -52,12 +37,9 @@ Simbolo* buscar_simbolo(char* nombre) {
     return NULL;
 }
 
+// Reporta un error semántico
 void error_semantico(const char* msg, const char* detalle) {
-    fprintf(stderr, "Error Semántico: %s", msg);
-    if (detalle && strlen(detalle) > 0) {
-        fprintf(stderr, " [%s]", detalle);
-    }
-    fprintf(stderr, "\n");
+    fprintf(stderr, "Error Semántico: %s [%s]\n", msg, detalle ? detalle : "");
     errores_semanticos++;
 }
 
@@ -68,13 +50,13 @@ TipoDato obtener_tipo(Nodo* n) {
     switch (n->tipo) {
         case NODO_NUMERO: 
             return TIPO_DATO_INT;
-            
+
         case NODO_DECIMAL: 
             return TIPO_DATO_FLOAT;
-            
+
         case NODO_CADENA: 
             return TIPO_DATO_STRING;
-            
+
         case NODO_BOOLEANO: 
             return TIPO_DATO_BOOL;
         
@@ -104,7 +86,6 @@ TipoDato obtener_tipo(Nodo* n) {
                     return TIPO_DATO_NULO;
                 }
             }
-            
             // División decimal
             if (strcmp(n->operador, "DIV") == 0) {
                 if ((t1 == TIPO_DATO_INT || t1 == TIPO_DATO_FLOAT) &&
@@ -141,12 +122,7 @@ TipoDato obtener_tipo(Nodo* n) {
             return TIPO_DATO_NULO;
         }
         
-
-        case NODO_TAMANO_ARRAY:
-            return TIPO_DATO_INT;
-
         case NODO_COMPARACION:
-        
         case NODO_LOGICO:
             // Validar que los operandos sean válidos
             obtener_tipo(n->izq);
@@ -155,41 +131,40 @@ TipoDato obtener_tipo(Nodo* n) {
         
         case NODO_ENTRADA: 
             return TIPO_DATO_INT; // Asumimos que entrada devuelve int
-            
+
         case NODO_OBTENER_TECLA: 
             return TIPO_DATO_INT;
-            
-        case NODO_LONGITUD: 
-            return TIPO_DATO_INT;
-            
-        case NODO_ACCESO_ARRAY:
-             Simbolo* s = buscar_simbolo(n->nombre);
+
+        case NODO_ACCESO_ARRAY: {
+            Simbolo* s = buscar_simbolo(n->nombre);
             if (s && s->es_arreglo) {
                 return s->tipo_elemento; // Retorna el tipo del elemento
             }
             return TIPO_DATO_NULO;
+        }
 
-        default: return TIPO_DATO_NULO;
+        case NODO_LONGITUD:
+        case NODO_TAMANO_ARRAY:
+            return TIPO_DATO_INT;
+        default: 
+            return TIPO_DATO_NULO;
     }
 }
 
-// Valida el árbol de sintaxis
+// -Se recorre el árbol para verificar validez
 void recorrer_y_validar(Nodo* n) {
     if (!n) return;
 
     switch (n->tipo) {
         case NODO_PROGRAMA:
         case NODO_BLOQUE:
-            recorrer_y_validar(n->siguiente);
+            recorrer_y_validar(n->siguiente); // Recorremos lista de instrucciones
             break;
 
         case NODO_VAR_DECL: {
-            // Verificar doble declaración
             if (buscar_simbolo(n->nombre)) {
                 error_semantico("Variable ya declarada", n->nombre);
             }
-            
-            // Caso 1: Arreglos
             if (n->es_arreglo) {
                 // Validar que los elementos sean del tipo correcto
                 if (n->izq && n->izq->tipo == NODO_ARREGLO) {
@@ -203,35 +178,33 @@ void recorrer_y_validar(Nodo* n) {
                     }
                 }
                 declarar_variable(n->nombre, n->tipo_dato, 1, n->tipo_elemento);
-            } 
-            // Caso 2: Variables normales
-            else {
-                if (n->izq) {
-                    TipoDato tipo_expr = obtener_tipo(n->izq);
-                    
-                    if (tipo_expr != TIPO_DATO_NULO && n->tipo_dato != tipo_expr) {
-                        // INT → FLOAT: Permitido (promoción)
-                        if (n->tipo_dato == TIPO_DATO_FLOAT && tipo_expr == TIPO_DATO_INT) {
-                            // OK
-                        }
-                        // FLOAT → INT: Error
-                        else if (n->tipo_dato == TIPO_DATO_INT && tipo_expr == TIPO_DATO_FLOAT) {
-                            char msg[256];
-                            snprintf(msg, sizeof(msg), 
-                                   "No se puede asignar decimal a entero en la variable '%s'", 
-                                   n->nombre);
-                            error_semantico(msg, "Los decimales no pueden guardarse en variables enteras");
-                        }
-                        // Otros tipos incompatibles
-                        else {
-                            char msg[256];
-                            snprintf(msg, sizeof(msg), 
-                                   "Tipo incompatible en la declaración de '%s'", 
-                                   n->nombre);
-                            error_semantico(msg, "");
-                        }
+            } else {
+            // Variable normal
+            // Verificar compatibilidad de tipos en la inicialización
+            if (n->izq) {
+                TipoDato tipo_expr = obtener_tipo(n->izq);
+                
+                if (tipo_expr != TIPO_DATO_NULO && n->tipo_dato != tipo_expr) {
+                    if (n->tipo_dato == TIPO_DATO_FLOAT && tipo_expr == TIPO_DATO_INT) {
+                    }
+                    else if (n->tipo_dato == TIPO_DATO_INT && tipo_expr == TIPO_DATO_FLOAT) {
+                        char msg[256];
+                        snprintf(msg, sizeof(msg), 
+                               "No se puede asignar decimal a entero en la variable '%s'", 
+                               n->nombre);
+                        error_semantico(msg, "Los decimales no pueden guardarse en variables enteras");
+                    }
+                    // Otros tipos incompatibles
+                    else {
+                        char msg[256];
+                        snprintf(msg, sizeof(msg), 
+                               "Tipo incompatible en la declaración de '%s'", 
+                               n->nombre);
+                        error_semantico(msg, "");
                     }
                 }
+            }
+                // Registrar la variable
                 declarar_variable(n->nombre, n->tipo_dato, 0, TIPO_DATO_NULO);
             }
             break;
@@ -339,21 +312,23 @@ void recorrer_y_validar(Nodo* n) {
 
         case NODO_SI:
         case NODO_MIENTRAS:
+            // Validamos condición (debería ser BOOL o INT)
             obtener_tipo(n->condicion);
-            recorrer_y_validar(n->der);
-            recorrer_y_validar(n->sino);
+            recorrer_y_validar(n->der);  // Cuerpo
+            recorrer_y_validar(n->sino); // Else
             break;
 
         case NODO_IMPRIMIR:
             obtener_tipo(n->izq);
             break;
 
+        // Validamos expresiones dentro de funciones gráficas
         case NODO_PIXEL:
-            obtener_tipo(n->izq);
-            obtener_tipo(n->der);
-            obtener_tipo(n->extra);
+            obtener_tipo(n->izq); // X
+            obtener_tipo(n->der); // Y
+            obtener_tipo(n->extra); // Color
             break;
-        
+
         case NODO_FUNCION:
             recorrer_y_validar(n->parametros);
             recorrer_y_validar(n->cuerpo);
@@ -369,17 +344,18 @@ void recorrer_y_validar(Nodo* n) {
             break;
     }
 
+    // Continua con la siguiente instrucción
     recorrer_y_validar(n->siguiente);
 }
 
-// Función principal del análisis semántico
+// Función Principal
 int analizar_semantica(Nodo* raiz) {
     errores_semanticos = 0;
-    tabla_simbolos = NULL;
-    
+    // Limpiamos tabla por si acaso
+    tabla_simbolos = NULL; 
     
     if (raiz && raiz->tipo == NODO_PROGRAMA) {
-        recorrer_y_validar(raiz->siguiente);
+        recorrer_y_validar(raiz->siguiente); // Saltamos el nodo raíz contenedor
     } else {
         recorrer_y_validar(raiz);
     }
@@ -388,7 +364,7 @@ int analizar_semantica(Nodo* raiz) {
         fprintf(stderr, "\nSe encontró un error semántico.\n");
         return 1;
     } else if (errores_semanticos > 1) {
-        fprintf(stderr, "\nSe encontraron %d errores semánticos.\n", errores_semanticos);
+        fprintf(stderr, "Se encontraron %d errores semánticos.\n", errores_semanticos);
         return 1;
     }
     
