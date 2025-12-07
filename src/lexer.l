@@ -51,6 +51,8 @@ char* mi_strdup(const char* s) {
 "eliminar"          { return ELIMINAR; }
 "tamano"            { return TAMANO; }
 
+"DIV"               { return DIV_DECIMAL; }
+
 "=="                { return IGUAL_QUE; }
 "!="                { return DIFERENTE; }
 "<="                { return MENOR_IGUAL; }
