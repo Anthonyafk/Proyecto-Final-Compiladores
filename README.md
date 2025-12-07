@@ -2,7 +2,7 @@
 
 ## Descripción
 
-Compilador completo de un lenguaje de programación basado en el Español que genera código intermedio optimizado para el **Simluador FIS-25**. Incluye análisis léxico (Flex), sintáctico (Bison) y generación de código intermedio.
+Compilador de lenguaje de programación en español que genera código intermedio para el **Simulador FIS-25**. Incluye análisis léxico (Flex), sintáctico (Bison), semántico y generación de código optimizado.
 
 ### Equipo
 
@@ -17,7 +17,7 @@ cd src
 make
 ```
 
-Se genera el código intermedio en `salida.txt` a partir de `reloj.esp`.
+Genera código intermedio en `salida.txt` a partir de `reloj.esp`.
 
 ### Ejecutar en FIS-25
 
@@ -38,79 +38,85 @@ Reloj analógico de 12 horas en pantalla 64x64 con control manual mediante tecla
 - **Entrada validada**: Límites automáticos (horas 1-12, minutos 0-59)  
 - **Código optimizado**: Generación eficiente de código intermedio
 
-## Estructura
-
-```
-src/
-├── lexer.l           # Analizador léxico
-├── parser.y          # Gramática y parser
-├── ast.h / ast.c     # AST
-├── codegen.h / .c    # Generador de código
-├── main.c            # Programa principal
-├── reloj.esp         # Código fuente
-└── salida.txt        # Código intermedio
-```
-
-Proceso:
-1. Flex genera lexer
-2. Bison genera parser
-3. GCC compila el compilador
-4. Ejecuta sobre `reloj.esp`
-5. Genera `salida.txt`
-
-## Ejemplo de sintaxis de nuestro lenguaje
+## Sintaxis del Lenguaje
 
 ```javascript
 // Variables
 variable ENTERO horas = 12;
-variable ENTERO minutos = 30;
+variable DECIMAL precio = 19.99;
+variable BOOLEANO activo = verdadero;
+variable ENTERO[] nums = [10, 20, 30];
 
-// Entrada
-horas = entrada();
+// Entrada/Salida
+variable ENTERO x = entrada();
+imprimir(x);
 
 // Control de flujo
-Si (horas > 12) { 
-    horas = 12; 
+Si (x > 10) {
+    imprimir("Mayor");
+} SiNo {
+    imprimir("Menor");
 }
 
-Mientras (by < 64) {
-    pintar_pixel(x, y, 1);
-    by = by + 1;
+Mientras (x < 100) {
+    x = x + 1;
 }
 
-// Operadores lógicos
-Si (x0 == x1 Y y0 == y1) {
-    loop = 0;
+// Arreglos
+agregar(nums, 40);
+nums[0] = 99;
+eliminar(nums, 1);
+
+// Funciones
+funcion ENTERO calcularMCD(ENTERO a, ENTERO b) {
+    Mientras (b > 0) {
+        variable ENTERO temp = b;
+        b = a % b;
+        a = temp;
+    }
+    retornar a;
 }
 
-// Funciones nativas
+// Operaciones
+/ → División entera (ENTERO / ENTERO)
+DIV → División decimal (produce DECIMAL)
+% → Módulo
+
+// Funciones FIS-25
 pintar_pixel(x, y, color);
 leer_tecla(numero, variable);
-imprimir(expresion);
 ```
 
-## Algoritmo Bresenham
+## Estructura
 
-Trazado eficiente de líneas para las manecillas:
-
-```javascript
-dx = x1 - x0;
-dy = y1 - y0;
-err = dx - dy;
-
-Mientras (loop == 1) {
-    pintar_pixel(x0, y0, 1);
-    Si (x0 == x1 Y y0 == y1) { loop = 0; }
-    
-    e2 = 2 * err;
-    Si (e2 > (0 - dy)) { 
-        err = err - dy; 
-        x0 = x0 + sx; 
-    }
-    Si (e2 < dx) { 
-        err = err + dx; 
-        y0 = y0 + sy; 
-    }
-}
 ```
+src/
+├── lexer.l              # Análisis léxico
+├── parser.y             # Análisis sintáctico
+├── ast.h / ast.c        # AST
+├── semantics.h / .c     # Análisis semántico
+├── codegen.h / .c       # Generación de código
+├── main.c               # Principal
+├── reloj.esp            # Código fuente
+└── salida.txt           # Código intermedio
+```
+
+## Compilación
+
+```bash
+make                # Compila y genera código
+make clean          # Limpia archivos generados
+```
+
+Proceso:
+1. Flex → `lex.yy.c`
+2. Bison → `parser.tab.c`
+3. GCC → `compilador`
+4. Ejecuta sobre `reloj.esp`
+5. Genera `salida.txt`
+
+## Curso
+
+**Laboratorio de Compiladores**  
+Diciembre 2025
 

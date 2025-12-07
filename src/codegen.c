@@ -158,27 +158,7 @@ char* generar_expresion(Nodo* n) {
                 }
             }
             return t;
-/*        case NODO_LLAMADA_FUNC:
-            // Apilar argumentos con PARAM antes de GOSUB
-            Nodo* arg = n->argumentos;
-            int num_args = 0;
-            // Contar argumentos primero
-            Nodo* temp_arg = arg;
-            while (temp_arg) {
-                num_args++;
-                temp_arg = temp_arg->siguiente;
-            }
-            // Apilar argumentos en orden
-            arg = n->argumentos;
-            while (arg) {
-                char* temp_arg_val = generar_expresion(arg);
-                printf("PARAM %s\n", temp_arg_val);
-                arg = arg->siguiente;
-            }
-            // Llamar a la subrutina
-            printf("GOSUB %s\n", n->nombre);
-            return t;
-*/
+            
         case NODO_LLAMADA_FUNC: {
             // Apilar argumentos
             Nodo* arg = n->argumentos;
@@ -305,14 +285,9 @@ void generar_codigo(Nodo* n) {
             break;
 
         case NODO_ASIGNACION_ARRAY: {
-            // arr[indice] = valor
             char* idx = generar_expresion(n->indice);
             char* val = generar_expresion(n->izq);
 
-            // Comentario para claridad
-            //printf("// %s[%s] = %s\n", n->nombre, idx, val);
-
-            // Verificar que el índice esté en rango
             char* t_valid = nuevo_temp();
             printf("LT %s %s_size %s\n", idx, n->nombre, t_valid);
 
@@ -349,14 +324,9 @@ void generar_codigo(Nodo* n) {
             break;
         }
         case NODO_ELIMINAR: {
-            // eliminar(arr, indice)
-            //char* idx = generar_expresion(n->indice);
-            //printf("// eliminar(%s, índice en %s)\n", n->nombre, idx);
-            
-            // Obtener info del arreglo
+
             ArrayInfo* arr_info = obtener_array_info(n->nombre);
             
-            // Verificar rango
             char* t_valid = nuevo_temp();
             printf("LT %d %s_size %s\n", n->indice->valor_int, n->nombre, t_valid);
 
@@ -370,18 +340,16 @@ void generar_codigo(Nodo* n) {
             printf("LABEL L%d\n", L_valid);
 
             for (int i = 0; i < arr_info->size_actual; i++) {
-                //int L_check = nueva_etiqueta();
                 int L_next = nueva_etiqueta();
         
                 char* cond = nuevo_temp();
                 printf("EQ %d %d %s\n", n->indice->valor_int, i, cond);
                 printf("IFFALSE %s GOTO L%d\n", cond, L_next);
         
-                // Desplazar todos los elementos siguientes
+
                 for (int j = i; j < arr_info->size_actual - 1; j++) {
                     printf("ASSIGN %s_%d %s_%d\n", n->nombre, j+1, n->nombre, j);
                 }
-                //printf("GOTO L%d\n", L_next);
                 printf("LABEL L%d\n", L_next);
             }
     
@@ -493,7 +461,6 @@ void generar_codigo(Nodo* n) {
 }
 
 void generar_codigo_programa(Nodo* raiz) {
-    //printf("// Código Intermedio FIS-25\n");
-    generar_codigo(raiz); // Inicia la recursión
+    generar_codigo(raiz);
 
 }
